@@ -1,5 +1,5 @@
 얘들아 이거보고 해라.
-
+hello my name is 
 
 
 1. VS Code 실행
