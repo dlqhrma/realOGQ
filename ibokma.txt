@@ -1,0 +1,33 @@
+얘들아 이거보고 해라.
+hello my name is 
+
+
+1. VS Code 실행
+
+2. 터미널 열기
+
+3.
+git clone https://github.com/dlqhrma/realOGQ.git
+
+4.
+cd realOGQ
+
+5.
+git config --global user.name "본인 GitHub 아이디"
+
+6.
+git config --global user.email "본인 GitHub 이메일"
+
+7.
+파일 하나 생성
+예)
+hong.txt
+
+8.
+git add .
+
+9.
+git commit -m "첫 잔디"
+
+10.
+git push origin main
