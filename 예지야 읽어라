@@ -1,0 +1,21 @@
+# 1. 프로젝트 폴더로 이동
+cd D:\ai\realOGQ
+
+# 2. 최신 코드 가져오기
+git pull origin main
+
+# 3. 원격 브랜치 정보 가져오기
+git fetch origin
+
+# 4. 디자인 브랜치 생성 및 이동
+git checkout -b feature/design origin/feature/design
+
+# 5. 현재 브랜치 확인
+git branch
+
+# 6. 작업 후
+git add .
+git commit -m "디자인 수정"
+
+# 7. GitHub 업로드
+git push origin feature/design
