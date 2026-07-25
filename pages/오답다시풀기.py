@@ -107,7 +107,27 @@ if st.button("🔄 유사문제 생성"):
     st.success("유사문제 생성 완료!")
 
 if "similar_problem" in st.session_state:
-    st.markdown(st.session_state.similar_problem)
+    result = st.session_state.similar_problem
+    problem_part, answer_part = result.split("### 정답", 1)
+
+    st.markdown(problem_part)
+    user_answer = st.radio(
+    "답을 선택하세요.",
+    ["①", "②", "③", "④"],
+    index=None,
+    key=f"similar_answer_{idx}"
+    )
+
+    if st.button("정답 확인", key=f"similar_check_{idx}"):
+
+        # 사용자가 답을 선택하지 않은 경우
+        if user_answer is None:
+            st.warning("답을 선택해주세요.")
+
+        else:
+
+            st.markdown("### AI 해설")
+            st.markdown(answer_part)
     
 st.divider()
 
