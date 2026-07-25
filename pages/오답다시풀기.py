@@ -1,5 +1,6 @@
 import streamlit as st
 import ast
+import re
 from database import get_wrong_questions
 from ai_service import (
     generate_ai_explanation,
@@ -110,6 +111,14 @@ if "similar_problem" in st.session_state:
     result = st.session_state.similar_problem
     problem_part, answer_part = result.split("### 정답", 1)
 
+
+    match = re.search(r"①|②|③|④", answer_part)
+
+    if match:
+            ai_correct_answer = match.group()
+    else:
+            ai_correct_answer = None
+
     st.markdown(problem_part)
     user_answer = st.radio(
     "답을 선택하세요.",
@@ -120,13 +129,24 @@ if "similar_problem" in st.session_state:
 
     if st.button("정답 확인", key=f"similar_check_{idx}"):
 
-        # 사용자가 답을 선택하지 않은 경우
         if user_answer is None:
             st.warning("답을 선택해주세요.")
 
         else:
 
-            st.markdown("### AI 해설")
+            if ai_correct_answer is None:
+                st.error("AI 정답을 찾을 수 없습니다.")
+
+            elif user_answer == ai_correct_answer:
+                st.success("🎉 정답입니다!")
+
+            else:
+                st.error("❌ 오답입니다.")
+                st.write(f"정답 : **{ai_correct_answer}**")
+
+            # "### 해설" 이후는 제거
+            if "### 해설" in answer_part:
+                answer_part = answer_part.split("### 해설")[0]
             st.markdown(answer_part)
     
 st.divider()
