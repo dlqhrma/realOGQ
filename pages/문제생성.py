@@ -1,5 +1,6 @@
 import streamlit as st
 
+
 st.set_page_config(page_title="AI 문제 생성", page_icon="📘")
 
 st.title("📘 AI 문제 생성")
