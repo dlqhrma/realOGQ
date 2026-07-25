@@ -26,6 +26,8 @@ def save_wrong_answer(
     exam_id,
     question_id,
     chapter,
+    concept,
+    difficulty,
     question,
     choices,
     my_answer,
@@ -41,6 +43,8 @@ def save_wrong_answer(
             exam_id,
             question_id,
             chapter,
+            concept,
+            difficulty,
             question,
             choices,
             my_answer,
@@ -48,18 +52,20 @@ def save_wrong_answer(
             explanation,
             wrong_date
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
-        exam_id,
-        question_id,
-        chapter,
-        question,
-        str(choices),
-        my_answer,
-        correct_answer,
-        explanation,
-        wrong_date
-    ))
+            exam_id,
+            question_id,
+            chapter,
+            concept,
+            difficulty,
+            question,
+            str(choices),
+            my_answer,
+            correct_answer,
+            explanation,
+            wrong_date
+         ))
 
     conn.commit()
     conn.close()
@@ -91,14 +97,17 @@ def get_wrong_questions(exam_id):
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT
-            question,
-            choices,
-            my_answer,
-            correct_answer,
-            explanation
-        FROM wrong_answers
-        WHERE exam_id = ?
+    SELECT
+        chapter,
+        concept,
+        difficulty,
+        question,
+        choices,
+        my_answer,
+        correct_answer,
+        explanation
+    FROM wrong_answers
+    WHERE exam_id = ?
     """, (exam_id,))
 
     data = cursor.fetchall()

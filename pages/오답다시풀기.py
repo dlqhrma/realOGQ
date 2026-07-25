@@ -1,7 +1,10 @@
 import streamlit as st
 import ast
 from database import get_wrong_questions
-from ai_service import generate_ai_explanation
+from ai_service import (
+    generate_ai_explanation,
+    generate_similar_problem
+)
 
 
 st.set_page_config(
@@ -29,7 +32,7 @@ if "retry_index" not in st.session_state:
 
 idx = st.session_state.retry_index
 
-question, choices, my_answer, correct_answer, explanation = questions[idx]
+chapter, concept, difficulty, question, choices, my_answer, correct_answer, explanation = questions[idx]
 
 choices = ast.literal_eval(choices)
 
@@ -43,7 +46,7 @@ answer = st.radio(
     "정답을 선택하세요.",
     choices,
     index=None,
-    key=f"retry_{idx}"
+    key=f"retry_answer_{idx}"
 )
 
 if st.button("정답 확인"):
@@ -64,65 +67,48 @@ if st.button("🤖 AI 해설 생성"):
         import time
         time.sleep(2)
 
-    result = generate_ai_explanation(
-        question,
-        choices,
-        correct_answer,
-        my_answer
-)
+    answer = st.session_state.get(f"retry_answer_{idx}")
+
+    if "ai_result" not in st.session_state:
+
+        with st.spinner("AI가 해설을 생성하는 중입니다..."):
+            result = generate_ai_explanation(
+                question,
+                choices,
+                correct_answer,
+                answer
+            )
+            st.session_state.ai_result = result
+
     st.success("AI 해설 생성 완료!")
     
-
-
-    st.markdown(result)
+if "ai_result" in st.session_state:
+    st.markdown(st.session_state.ai_result)
 
 st.divider()
 
 if st.button("🔄 유사문제 생성"):
 
-    with st.spinner("AI가 유사문제를 생성하는 중입니다..."):
+    if "similar_problem" not in st.session_state:
 
-        import time
-        time.sleep(2)
+        with st.spinner("AI가 유사문제를 생성하는 중입니다..."):
 
-        st.success("유사문제 생성 완료!")
+            result = generate_similar_problem(
+                question,
+                choices,
+                correct_answer,
+                chapter,
+                concept,
+                difficulty
+            )
 
-        st.markdown("## 🔄 유사문제")
+            st.session_state.similar_problem = result
 
-        st.markdown("""
-### 문제
+    st.success("유사문제 생성 완료!")
 
-시퀀스 밸브의 특징으로 알맞은 것은?
-
-① 압력을 일정하게 유지한다.
-
-② 유체의 역류를 방지한다.
-
-③ 설정 압력 이상에서 다음 회로를 작동시킨다.
-
-④ 유량을 조절한다.
-
----
-""")
-
-        user_answer = st.radio(
-    "답을 선택하세요.",
-    ["①", "②", "③", "④"],
-    index=None
-)
-
-    if st.button("정답 보기"):
-
-        st.success("정답 : ③")
-
-        st.markdown("""
-### 📝 해설
-
-시퀀스 밸브는 설정 압력 이상이 되면
-다음 회로를 순차적으로 작동시키는
-압력 제어 밸브입니다.
-""")
-
+if "similar_problem" in st.session_state:
+    st.markdown(st.session_state.similar_problem)
+    
 st.divider()
 
 col1, col2, col3 = st.columns(3)
@@ -131,6 +117,9 @@ with col1:
 
     if idx > 0:
         if st.button("⬅ 이전"):
+            st.session_state.pop("ai_result", None)
+            st.session_state.pop("similar_problem", None)
+
             st.session_state.retry_index -= 1
             st.rerun()
 
@@ -139,6 +128,10 @@ with col2:
     if st.button("📂 오답노트"):
 
         st.session_state.retry_index = 0
+
+        st.session_state.pop("ai_result", None)
+        st.session_state.pop("similar_problem", None)
+
         st.switch_page("pages/오답노트.py")
 
 with col3:
@@ -146,6 +139,8 @@ with col3:
     if idx < len(questions)-1:
 
         if st.button("다음 ➡"):
+            st.session_state.pop("ai_result", None)
+            st.session_state.pop("similar_problem", None)
 
             st.session_state.retry_index += 1
             st.rerun()
@@ -155,4 +150,8 @@ with col3:
         if st.button("✅ 종료"):
 
             st.session_state.retry_index = 0
+
+            st.session_state.pop("ai_result", None)
+            st.session_state.pop("similar_problem", None)
+
             st.switch_page("pages/오답노트.py")

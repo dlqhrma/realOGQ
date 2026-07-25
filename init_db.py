@@ -22,6 +22,8 @@ CREATE TABLE IF NOT EXISTS wrong_answers (
     exam_id INTEGER,
     question_id INTEGER,
     chapter TEXT,
+    concept TEXT,
+    difficulty TEXT,
     question TEXT,
     choices TEXT,
     my_answer INTEGER,

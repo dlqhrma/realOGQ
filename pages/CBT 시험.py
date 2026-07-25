@@ -174,6 +174,8 @@ with col2:
                             exam_id=exam_id,
                             question_id=q["id"],
                             chapter=q["chapter"],
+                            concept=q["concept"],
+                            difficulty=q["difficulty"],
                             question=q["question"],
                             choices=q["choices"],
                             my_answer=st.session_state.answers[i],
@@ -181,7 +183,6 @@ with col2:
                             explanation=q["explanation"],
                             wrong_date=today
                         )
-
                 # 나중에 오답 저장할 때 사용
                 st.session_state.exam_id = exam_id
 
