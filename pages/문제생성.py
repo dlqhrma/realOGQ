@@ -1,4 +1,5 @@
 import streamlit as st
+from ai_service import generate_problems
 
 st.set_page_config(page_title="AI 문제 생성", page_icon="📘")
 
@@ -14,7 +15,8 @@ chapter = st.selectbox(
         "베어링",
         "용접",
         "윤활",
-        "유압·공압",
+        "유압",
+        "공압",
         "기계요소"
     ]
 )
@@ -28,15 +30,38 @@ difficulty = st.segmented_control(
 # 문제 수
 count = st.slider(
     "📝 문제 수",
-    5,
-    20,
-    10
+    1,
+    10,
+    5
 )
 
 st.divider()
 
+if "generated_problems" not in st.session_state:
+    st.session_state.generated_problems = ""
+
+if "show_result" not in st.session_state:
+    st.session_state.show_result = False
+
 if st.button("🤖 문제 생성", use_container_width=True):
-    st.success("AI 연결 예정입니다.")
-    st.write(f"단원 : {chapter}")
-    st.write(f"난이도 : {difficulty}")
-    st.write(f"문제 수 : {count}문제")
+
+    with st.spinner("AI가 문제를 생성하는 중입니다..."):
+
+        result = generate_problems(
+            chapter,
+            difficulty,
+            count
+        )
+
+    st.session_state.generated_problems = result
+
+if st.session_state.generated_problems:
+
+    text = st.session_state.generated_problems
+
+    if "### 정답" in text:
+        problem_text = text.split("### 정답")[0]
+    else:
+        problem_text = text
+
+    st.code(text)

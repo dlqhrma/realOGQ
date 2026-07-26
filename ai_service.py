@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 from google import genai
 
+
 load_dotenv()
 
 client = genai.Client(
@@ -91,6 +92,41 @@ def generate_similar_problem(
 
 난이도 :
 {difficulty}
+"""
+
+    response = client.models.generate_content(
+        model="gemini-3.6-flash",
+        contents=prompt
+    )
+
+    return response.text
+def generate_problems(
+    chapter,
+    difficulty,
+    count
+):
+
+    system_prompt = load_prompt("system_prompt.txt")
+    problem_prompt = load_prompt("problem_prompt.txt")
+    output_format = load_prompt("output_format.txt")
+
+    prompt = f"""
+{system_prompt}
+
+{problem_prompt}
+
+{output_format}
+
+## 사용자 입력
+
+단원 :
+{chapter}
+
+난이도 :
+{difficulty}
+
+문제 수 :
+{count}
 """
 
     response = client.models.generate_content(
