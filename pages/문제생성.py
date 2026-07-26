@@ -1,4 +1,5 @@
 import streamlit as st
+import re
 from ai_service import generate_problems
 
 st.set_page_config(page_title="AI 문제 생성", page_icon="📘")
@@ -59,9 +60,58 @@ if st.session_state.generated_problems:
 
     text = st.session_state.generated_problems
 
-    if "### 정답" in text:
-        problem_text = text.split("### 정답")[0]
-    else:
-        problem_text = text
+    # 문제
+    question = re.search(
+        r"### 문제\s*(.*?)### 보기",
+        text,
+        re.S
+    ).group(1).strip()
 
-    st.code(text)
+    # 보기
+    choice_text = re.search(
+        r"### 보기\s*(.*?)### 정답",
+        text,
+        re.S
+    ).group(1).strip()
+
+    choices = re.findall(
+        r"[①②③④].*?(?=[①②③④]|$)",
+        choice_text,
+        re.S
+    )
+
+    # 정답
+    answer = re.search(
+        r"### 정답\s*(.*?)### 해설",
+        text,
+        re.S
+    ).group(1).strip()
+
+    # 해설
+    explanation = re.search(
+        r"### 해설\s*(.*?)### 단원",
+        text,
+        re.S
+    ).group(1).strip()
+
+    st.subheader("문제")
+
+    st.write(question)
+
+    user_answer = st.radio(
+        "답을 선택하세요.",
+        choices
+    )
+
+    if st.button("정답 확인"):
+
+        if answer in user_answer:
+            st.success("정답입니다!")
+        else:
+            st.error("오답입니다.")
+
+        st.markdown("### 정답")
+        st.write(answer)
+
+        st.markdown("### 해설")
+        st.write(explanation)
