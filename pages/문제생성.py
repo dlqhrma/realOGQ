@@ -20,12 +20,11 @@ chapter = st.selectbox(
 )
 
 # 난이도
-difficulty = st.radio(
+difficulty = st.segmented_control(
     "🎯 난이도",
-    ["쉬움", "보통", "어려움"],
-    horizontal=True
+    options=["쉬움", "보통", "어려움"],
+    default="보통"
 )
-
 # 문제 수
 count = st.slider(
     "📝 문제 수",
