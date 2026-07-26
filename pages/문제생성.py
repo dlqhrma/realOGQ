@@ -1,6 +1,9 @@
 import streamlit as st
 import re
-from ai_service import generate_problems
+from ai_service import (
+    generate_problems,
+    generate_ai_explanation
+)
 
 st.set_page_config(page_title="AI 문제 생성", page_icon="📘")
 
@@ -41,8 +44,23 @@ st.divider()
 if "generated_problems" not in st.session_state:
     st.session_state.generated_problems = ""
 
+if "problem_list" not in st.session_state:
+    st.session_state.problem_list = []
+
+if "current_index" not in st.session_state:
+    st.session_state.current_index = 0
+
+if "score" not in st.session_state:
+    st.session_state.score = 0
+
 if "show_result" not in st.session_state:
     st.session_state.show_result = False
+
+if "answered" not in st.session_state:
+    st.session_state.answered = False
+    
+if "ai_explanation" not in st.session_state:
+    st.session_state.ai_explanation = ""
 
 if st.button("🤖 문제 생성", use_container_width=True):
 
@@ -55,10 +73,29 @@ if st.button("🤖 문제 생성", use_container_width=True):
         )
 
     st.session_state.generated_problems = result
+    
+    st.session_state.problem_list = re.split(
+    r"(?=### 문제)",
+    result
+    )
+
+    st.session_state.problem_list = [
+        p.strip()
+        for p in st.session_state.problem_list
+        if p.strip()
+    ]
+
+    st.session_state.current_index = 0
+    st.session_state.score = 0
+    st.session_state.show_result = False
+    st.session_state.answered = False
+    st.session_state.ai_explanation = ""
 
 if st.session_state.generated_problems:
 
-    text = st.session_state.generated_problems
+    text = st.session_state.problem_list[
+        st.session_state.current_index
+    ]
 
     # 문제
     question = re.search(
@@ -86,15 +123,18 @@ if st.session_state.generated_problems:
         text,
         re.S
     ).group(1).strip()
+    
+    answer_index = {
+        "①": 0,
+        "②": 1,
+        "③": 2,
+        "④": 3
+    }[answer[0]]
 
-    # 해설
-    explanation = re.search(
-        r"### 해설\s*(.*?)### 단원",
-        text,
-        re.S
-    ).group(1).strip()
 
-    st.subheader("문제")
+    st.subheader(
+        f"문제 {st.session_state.current_index + 1} / {len(st.session_state.problem_list)}"
+    )
 
     st.write(question)
 
@@ -103,15 +143,71 @@ if st.session_state.generated_problems:
         choices
     )
 
-    if st.button("정답 확인"):
+    if not st.session_state.answered:
 
-        if answer in user_answer:
-            st.success("정답입니다!")
-        else:
-            st.error("오답입니다.")
+        if st.button("정답 확인"):
+
+            st.session_state.show_result = True
+            st.session_state.answered = True
+
+            correct = answer[0]
+            selected = user_answer[0]
+
+            if selected == correct:
+                st.success("정답입니다!")
+                st.session_state.score += 1
+            else:
+                st.error("오답입니다.")
+            
+            with st.spinner("AI가 해설을 생성하는 중입니다..."):
+
+                st.session_state.ai_explanation = generate_ai_explanation(
+                    question=question,
+                    choices=choices,
+                    correct_answer=answer_index,
+                    user_answer=user_answer
+                )
+                
+    if st.session_state.show_result:
 
         st.markdown("### 정답")
         st.write(answer)
+        
+        st.markdown(st.session_state.ai_explanation)
+    
+        if st.session_state.current_index < len(st.session_state.problem_list) - 1:
 
-        st.markdown("### 해설")
-        st.write(explanation)
+            if st.button("다음 문제"):
+
+                st.session_state.current_index += 1
+                st.session_state.show_result = False
+                st.session_state.answered = False
+                st.session_state.ai_explanation = ""
+                
+                st.rerun()
+
+        else:
+
+            st.success("모든 문제를 완료했습니다!")
+
+            total = len(st.session_state.problem_list)
+            correct = st.session_state.score
+            wrong = total - correct
+            accuracy = (correct / total) * 100
+
+            st.write(f"총 문제 : {total}")
+            st.write(f"정답 : {correct}")
+            st.write(f"오답 : {wrong}")
+            st.write(f"정답률 : {accuracy:.1f}%")
+        
+            if st.button("다시 문제 생성"):
+
+                st.session_state.generated_problems = ""
+                st.session_state.problem_list = []
+                st.session_state.current_index = 0
+                st.session_state.score = 0
+                st.session_state.show_result = False
+                st.session_state.answered = False
+                st.session_state.ai_explanation = ""
+
+                st.rerun()
