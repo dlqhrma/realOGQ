@@ -17,12 +17,12 @@ with col1:
     st.info("📘 문제 생성")
     st.write("AI가 새로운 CBT 문제를 생성합니다.")
     if st.button("시작하기", key="problem"):
-        st.switch_page("pages/문제생성.py")
+        st.switch_page("pages/promblem.py")
 with col2:
     st.success("📝 CBT 시험")
     st.write("실제 CBT처럼 문제를 풉니다.")
     if st.button("시험 시작", key="cbt"):
-        st.switch_page("pages/CBT 시험.py")
+        st.switch_page("pages/CBTtest.py")
 
 st.write("")
 
@@ -33,7 +33,7 @@ with col3:
     st.warning("📂 오답노트")
     st.write("틀린 문제를 다시 공부합니다.")
     if st.button("오답 보기", key="wrong"):
-        st.switch_page("pages/오답노트.py")
+        st.switch_page("pages/note.py")
 
 with col4:
     st.error("📊 학습 분석")

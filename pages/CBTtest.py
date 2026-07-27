@@ -187,4 +187,4 @@ with col2:
                 st.session_state.exam_id = exam_id
 
                 # 결과 페이지 이동
-                st.switch_page("pages/시험결과.py")
+                st.switch_page("pages/result.py")

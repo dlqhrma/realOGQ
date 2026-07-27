@@ -57,4 +57,4 @@ with col2:
 
     if st.button("📂 오답노트", use_container_width=True):
 
-        st.switch_page("pages/오답노트.py")
+        st.switch_page("pages/note.py")

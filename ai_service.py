@@ -13,6 +13,10 @@ def load_prompt(filename):
     with open(f"prompts/{filename}", "r", encoding="utf-8") as f:
         return f.read()
 
+def load_knowledge():
+    with open("Data/Knowledge.txt", "r", encoding="utf-8") as f:
+        return f.read()
+
 
 def generate_ai_explanation(
     question,
@@ -24,9 +28,15 @@ def generate_ai_explanation(
     system_prompt = load_prompt("system_prompt.txt")
     answer_prompt = load_prompt("answer_prompt.txt")
     output_format = load_prompt("output_format.txt")
+    
+    knowledge = load_knowledge()
 
     prompt = f"""
 {system_prompt}
+
+
+## 참고 자료
+{knowledge}
 
 {answer_prompt}
 
@@ -65,9 +75,15 @@ def generate_similar_problem(
     system_prompt = load_prompt("system_prompt.txt")
     similar_prompt = load_prompt("similar_prompt.txt")
     output_format = load_prompt("output_format.txt")
+    
+    knowledge = load_knowledge()
 
     prompt = f"""
 {system_prompt}
+
+
+## 참고 자료
+{knowledge}
 
 {similar_prompt}
 
@@ -109,9 +125,15 @@ def generate_problems(
     system_prompt = load_prompt("system_prompt.txt")
     problem_prompt = load_prompt("problem_prompt.txt")
     output_format = load_prompt("output_format.txt")
+    
+    knowledge = load_knowledge()
 
     prompt = f"""
 {system_prompt}
+
+
+## 참고 자료
+{knowledge}
 
 {problem_prompt}
 

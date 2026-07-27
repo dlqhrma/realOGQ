@@ -172,7 +172,7 @@ with col2:
         st.session_state.pop("ai_result", None)
         st.session_state.pop("similar_problem", None)
 
-        st.switch_page("pages/오답노트.py")
+        st.switch_page("pages/note.py")
 
 with col3:
 
@@ -194,4 +194,4 @@ with col3:
             st.session_state.pop("ai_result", None)
             st.session_state.pop("similar_problem", None)
 
-            st.switch_page("pages/오답노트.py")
+            st.switch_page("pages/note.py")
