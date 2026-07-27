@@ -4,6 +4,7 @@ from datetime import datetime
 from ai_service import generate_problems
 import re
 
+
 st.set_page_config(page_title="CBT 시험", page_icon="📝", layout="wide")
 
 st.title("📝 설비보전기능사 CBT")
