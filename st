@@ -9,4 +9,4 @@ st.caption("※ 참고 사항이나 작은 캡션 텍스트")
 user_name = st.text_input("사용자 이름을 입력해 주세요:")
 
 # 여러 줄 입력창
-user_feedback = st.text_area("의견을 자유롭게 적어주세요:") 
+user_feedback = st.text_area("의견을 자유롭게 적어주세요:")
