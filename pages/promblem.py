@@ -96,18 +96,24 @@ if st.session_state.generated_problems:
     text = st.session_state.problem_list[
         st.session_state.current_index
     ]
+    
+    match = re.search(
+        r"### 보기\s*(.*?)### 정답",
+        text,
+        re.S
+    )
+
+    if match is None:
+        st.error("AI가 예상과 다른 형식으로 문제를 생성했습니다. 다시 생성해주세요.")
+        st.code(text)
+        st.stop()
+
+    choice_text = match.group(1).strip()
 
 
     # 문제
     question = re.search(
         r"### 문제\s*(.*?)### 보기",
-        text,
-        re.S
-    ).group(1).strip()
-
-    # 보기
-    choice_text = re.search(
-        r"### 보기\s*(.*?)### 정답",
         text,
         re.S
     ).group(1).strip()

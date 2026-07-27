@@ -2,6 +2,7 @@ import streamlit as st
 from database import save_exam, save_wrong_answer
 from datetime import datetime
 from ai_service import generate_problems
+from time import time
 import re
 
 st.set_page_config(page_title="CBT 시험", page_icon="📝", layout="wide")
@@ -14,9 +15,16 @@ st.title("📝 설비보전기능사 CBT")
 
 if "exam_started" not in st.session_state:
     st.session_state.exam_started = False
+    
+if "start_time" not in st.session_state:
+    st.session_state.start_time = None
+
+if "time_limit" not in st.session_state:
+    st.session_state.time_limit = 0
 
 if "questions" not in st.session_state:
     st.session_state.questions = []
+    
 
 questions = st.session_state.questions
 
@@ -116,6 +124,16 @@ if not st.session_state.exam_started:
         
         st.session_state.questions = parsed_questions
         st.session_state.answers = [None] * len(parsed_questions)
+        
+        from time import time
+
+        st.session_state.start_time = time()
+
+        if count == 20:
+            st.session_state.time_limit = 20 * 60
+        else:
+            st.session_state.time_limit = 40 * 60
+    
         st.session_state.current = 0
         st.session_state.exam_started = True
 
@@ -137,6 +155,20 @@ if len(questions) == 0:
     st.stop()
 question = questions[current]
 
+# -------------------------
+# 타이머
+# -------------------------
+
+elapsed = int(time() - st.session_state.start_time)
+remaining = st.session_state.time_limit - elapsed
+
+if remaining < 0:
+    remaining = 0
+
+minute = remaining // 60
+second = remaining % 60
+
+st.metric("⏱ 남은 시간", f"{minute:02d}:{second:02d}")
 
 # -------------------------
 # 진행률
@@ -223,22 +255,24 @@ with col2:
     else:
 
         if st.button("✅ 시험 제출", use_container_width=True):
+        
             
             # 미응답 문제 확인
             unanswered = [
-                str(i + 1)
+                i
                 for i, answer in enumerate(st.session_state.answers)
                 if answer is None
             ]
 
             if unanswered:
                 st.warning(
-                    f"미응답 문제가 있습니다.\n\n"
-                    f"({', '.join(unanswered)}번)\n\n"
-                    f"모든 문제를 푼 후 제출해주세요."
+                    f"미응답 문제가 있습니다. ({', '.join(str(i + 1) for i in unanswered)}번)"
                 )
-                st.stop()
 
+                # 첫 번째 미응답 문제로 이동
+                st.session_state.current = unanswered[0]
+                st.rerun()
+                
             if st.session_state.answers[current] is None:
                 st.warning("답을 선택해주세요.")
             else:
@@ -297,3 +331,4 @@ with col2:
 
                 # 결과 페이지 이동
                 st.switch_page("pages/result.py")
+
