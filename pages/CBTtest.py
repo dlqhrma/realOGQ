@@ -109,7 +109,11 @@ if not st.session_state.exam_started:
 
             except Exception:
                 continue
-
+            
+        if len(parsed_questions) == 0:
+            st.error("AI 문제를 파싱하지 못했습니다.")
+            st.stop()
+        
         st.session_state.questions = parsed_questions
         st.session_state.answers = [None] * len(parsed_questions)
         st.session_state.current = 0
@@ -128,7 +132,11 @@ if "answers" not in st.session_state:
     st.session_state.answers = [None] * len(questions)
 
 current = st.session_state.current
+if len(questions) == 0:
+    st.warning("문제가 없습니다.")
+    st.stop()
 question = questions[current]
+
 
 # -------------------------
 # 진행률
@@ -138,20 +146,43 @@ progress = (current + 1) / len(questions)
 
 st.progress(progress)
 
+# -------------------------
+# 문제 번호 이동
+# -------------------------
+
+cols = st.columns(5)
+
+for i in range(len(questions)):
+
+    with cols[i % 5]:
+
+        if i == current:
+            label = f"➡ {i+1}"
+        else:
+            label = f"{i+1}"
+
+        if st.session_state.answers[i] is not None:
+            label += " ✅"
+
+        if st.button(label, key=f"move_{i}", use_container_width=True):
+            st.session_state.current = i
+            st.rerun()
+
 st.subheader(f"문제 {current+1} / {len(questions)}")
 
 st.write(question["question"])
 
+saved_answer = st.session_state.answers[current]
+
 choice = st.radio(
     "정답을 선택하세요.",
-    question["choices"],
-    index=None,
+    range(len(question["choices"])),
+    index=saved_answer,
+    format_func=lambda i: question["choices"][i],
     key=f"radio_{current}"
 )
 
-# 이미 선택했던 답 불러오기
-if st.session_state.answers[current] is not None:
-    choice = st.session_state.answers[current]
+st.session_state.answers[current] = choice
 
 # 저장
 if choice:
@@ -192,6 +223,21 @@ with col2:
     else:
 
         if st.button("✅ 시험 제출", use_container_width=True):
+            
+            # 미응답 문제 확인
+            unanswered = [
+                str(i + 1)
+                for i, answer in enumerate(st.session_state.answers)
+                if answer is None
+            ]
+
+            if unanswered:
+                st.warning(
+                    f"미응답 문제가 있습니다.\n\n"
+                    f"({', '.join(unanswered)}번)\n\n"
+                    f"모든 문제를 푼 후 제출해주세요."
+                )
+                st.stop()
 
             if st.session_state.answers[current] is None:
                 st.warning("답을 선택해주세요.")
