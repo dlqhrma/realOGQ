@@ -7,7 +7,7 @@ st.set_page_config(
     layout="wide"
 )
 
-
+st.title("📂 오답노트")
 
 history = get_exam_history()
 
