@@ -10,7 +10,7 @@ st.set_page_config(page_title="AI 문제 생성", page_icon="📘")
 st.title("📘 AI 문제 생성")
 st.write("원하는 조건을 선택한 후 AI가 문제를 생성합니다.")
 
-st.divider()
+
 
 # 단원 선택
 chapter = st.selectbox(
