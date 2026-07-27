@@ -1,6 +1,8 @@
 import streamlit as st
 from database import save_exam, save_wrong_answer
 from datetime import datetime
+from ai_service import generate_problems
+import re
 
 st.set_page_config(page_title="CBT 시험", page_icon="📝", layout="wide")
 
@@ -10,49 +12,110 @@ st.title("📝 설비보전기능사 CBT")
 # 임시 문제 (나중에 AI 문제로 교체)
 # -------------------------
 
-questions = [
-    {
-        "id": 1,
-        "chapter": "베어링",
-        "difficulty": "보통",
+if "exam_started" not in st.session_state:
+    st.session_state.exam_started = False
 
-        "question": "베어링의 주요 역할은 무엇인가?",
+if "questions" not in st.session_state:
+    st.session_state.questions = []
 
-        "choices": [
-            "동력 전달",
-            "마찰 감소",
-            "절삭",
-            "용접"
-        ],
+questions = st.session_state.questions
 
-        "answer_index": 1,
+if not st.session_state.exam_started:
 
-        "explanation": "",
+    st.write("실제 설비보전기능사 CBT처럼 전 범위에서 문제가 출제됩니다.")
 
-        "concept": ""
-    },
+    count = st.selectbox(
+        "문제 수",
+        [20, 40],
+        index=0
+    )
 
-    {
-        "id": 2,
-        "chapter": "용접",
-        "difficulty": "쉬움",
+    if st.button("🚀 시험 시작", use_container_width=True):
 
-        "question": "용접 작업 시 가장 먼저 착용해야 하는 것은?",
+        with st.spinner("AI가 CBT 문제를 생성하는 중입니다..."):
 
-        "choices": [
-            "장갑",
-            "안전화",
-            "보안면",
-            "귀마개"
-        ],
+            result = generate_problems(
+                chapter="전체",
+                difficulty="랜덤",
+                count=count
+            )
 
-        "answer_index": 2,
+        # -------------------------
+        # AI 결과 파싱
+        # -------------------------
 
-        "explanation": "",
+        parsed_questions = []
 
-        "concept": ""
-    }
-]
+        blocks = re.split(r"### 문제", result)
+
+        for idx, block in enumerate(blocks):
+
+            block = block.strip()
+
+            if not block:
+                continue
+
+            try:
+
+                # 문제
+                question = block.split("### 보기")[0].strip()
+
+                # 보기
+                choices_text = block.split("### 보기")[1].split("### 정답")[0]
+
+                choices = []
+
+                for line in choices_text.split("\n"):
+
+                    line = line.strip()
+
+                    if line.startswith(("①", "②", "③", "④")):
+                        choices.append(line[2:].strip())
+
+                # 정답
+                answer_text = block.split("### 정답")[1].split("### 해설")[0].strip()
+
+                answer_map = {
+                    "①": 0,
+                    "②": 1,
+                    "③": 2,
+                    "④": 3
+                }
+
+                answer_index = answer_map.get(answer_text, 0)
+
+                # 해설
+                explanation = block.split("### 해설")[1].split("### 단원")[0].strip()
+
+                # 단원
+                chapter = block.split("### 단원")[1].split("### 난이도")[0].strip()
+
+                # 난이도
+                difficulty = block.split("### 난이도")[1].split("### 핵심 개념")[0].strip()
+
+                # 핵심 개념
+                concept = block.split("### 핵심 개념")[1].strip()
+
+                parsed_questions.append({
+                    "id": idx,
+                    "chapter": chapter,
+                    "difficulty": difficulty,
+                    "question": question,
+                    "choices": choices,
+                    "answer_index": answer_index,
+                    "explanation": explanation,
+                    "concept": concept
+                })
+
+            except Exception:
+                continue
+
+        st.session_state.questions = parsed_questions
+        st.session_state.answers = [None] * len(parsed_questions)
+        st.session_state.current = 0
+        st.session_state.exam_started = True
+
+        st.rerun()
 
 # -------------------------
 # Session
