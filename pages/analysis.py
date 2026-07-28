@@ -7,10 +7,12 @@ from database import (
 )
 
 st.set_page_config(
-    page_title="학습 분석",
+    page_title="📊 학습분석",
     page_icon="📊",
     layout="wide"
 )
+
+
 
 st.title("📊 학습 분석")
 
