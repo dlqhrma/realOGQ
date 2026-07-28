@@ -33,7 +33,18 @@ CREATE TABLE IF NOT EXISTS wrong_answers (
 )
 """)
 
+# 문제 풀이 기록
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS question_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    exam_id INTEGER,
+    chapter TEXT,
+    is_correct INTEGER
+)
+""")
+
 conn.commit()
 conn.close()
 
 print("DB 생성 완료!")
+

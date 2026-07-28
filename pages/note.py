@@ -1,5 +1,5 @@
 import streamlit as st
-from database import get_exam_history
+from database import get_exam_history_for_note
 
 st.set_page_config(
     page_title="오답노트",
@@ -9,7 +9,7 @@ st.set_page_config(
 
 st.title("📂 오답노트")
 
-history = get_exam_history()
+history = get_exam_history_for_note()
 
 if len(history) == 0:
     st.warning("오답노트가 없습니다.")

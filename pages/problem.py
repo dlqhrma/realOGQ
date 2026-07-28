@@ -66,12 +66,15 @@ if st.button("🤖 문제 생성", use_container_width=True):
 
     with st.spinner("AI가 문제를 생성하는 중입니다..."):
 
-        result = generate_problems(
-            chapter,
-            difficulty,
-            count
-        )
-
+        try:
+            result = generate_problems(
+                chapter,
+                difficulty,
+                count
+            )
+        except Exception:
+            st.error("AI 문제 생성에 실패했습니다. 잠시 후 다시 시도해주세요.")
+            st.stop()
     st.session_state.generated_problems = result
     
     st.session_state.problem_list = re.split(

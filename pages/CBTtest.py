@@ -1,17 +1,19 @@
 import streamlit as st
-from database import save_exam, save_wrong_answer
+from database import (
+    save_exam,
+    save_wrong_answer,
+    save_question_history
+)
 from datetime import datetime
 from ai_service import generate_problems
 from time import time
+from streamlit_autorefresh import st_autorefresh
 import re
 
 st.set_page_config(page_title="CBT 시험", page_icon="📝", layout="wide")
 
 st.title("📝 설비보전기능사 CBT")
 
-# -------------------------
-# 임시 문제 (나중에 AI 문제로 교체)
-# -------------------------
 
 if "exam_started" not in st.session_state:
     st.session_state.exam_started = False
@@ -28,6 +30,93 @@ if "questions" not in st.session_state:
 
 questions = st.session_state.questions
 
+if "marked" not in st.session_state:
+    st.session_state.marked = [False] * len(questions)
+
+def grade_exam():
+
+    score = 0
+    wrong_questions = []
+
+    for i, q in enumerate(questions):
+
+        if st.session_state.answers[i] == q["answer_index"]:
+            score += 1
+
+        else:
+            wrong_questions.append({
+                "number": i + 1,
+                "question": q["question"],
+                "choices": q["choices"],
+                "my_answer": st.session_state.answers[i],
+                "correct_answer": q["answer_index"]
+            })
+            
+        
+    st.session_state.score = score
+    st.session_state.total_questions = len(questions)
+    st.session_state.wrong_questions = wrong_questions
+    
+    if st.session_state.start_time is not None:
+        duration = int(time() - st.session_state.start_time)
+    
+    else:
+        duration = 0
+    st.session_state.duration = duration
+
+    exam_id = save_exam(
+        exam_date=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        score=score,
+        total_questions=len(questions),
+        duration=duration
+    )
+    
+    for i, q in enumerate(questions):
+
+        correct = st.session_state.answers[i] == q["answer_index"]
+
+        save_question_history(
+            exam_id=exam_id,
+            chapter=q["chapter"],
+            is_correct=1 if correct else 0
+        )
+
+    today = datetime.now().strftime("%Y-%m-%d")
+
+    for i, q in enumerate(questions):
+
+        if st.session_state.answers[i] != q["answer_index"]:
+            
+
+            save_wrong_answer(
+                exam_id=exam_id,
+                question_id=q["id"],
+                chapter=q["chapter"],
+                concept=q["concept"],
+                difficulty=q["difficulty"],
+                question=q["question"],
+                choices=q["choices"],
+                my_answer=st.session_state.answers[i],
+                correct_answer=q["answer_index"],
+                explanation=q["explanation"],
+                wrong_date=today
+            )
+
+    
+    st.session_state.exam_id = exam_id
+
+    st.session_state.exam_started = False
+    st.session_state.questions = []
+    st.session_state.answers = []
+    st.session_state.marked = []
+    st.session_state.current = 0
+    st.session_state.start_time = None
+    st.session_state.time_limit = 0
+    st.session_state.submit_confirm = False
+    st.session_state.unanswered = []
+
+    st.switch_page("pages/result.py")
+
 if not st.session_state.exam_started:
 
     st.write("실제 설비보전기능사 CBT처럼 전 범위에서 문제가 출제됩니다.")
@@ -42,12 +131,15 @@ if not st.session_state.exam_started:
 
         with st.spinner("AI가 CBT 문제를 생성하는 중입니다..."):
 
-            result = generate_problems(
-                chapter="전체",
-                difficulty="랜덤",
-                count=count
-            )
-
+            try:
+                result = generate_problems(
+                    chapter="전체",
+                    difficulty="랜덤",
+                    count=count
+                )
+            except Exception as e:
+                st.error("AI 문제 생성에 실패했습니다. 잠시 후 다시 시도해주세요.")
+                st.stop()
         # -------------------------
         # AI 결과 파싱
         # -------------------------
@@ -124,6 +216,7 @@ if not st.session_state.exam_started:
         
         st.session_state.questions = parsed_questions
         st.session_state.answers = [None] * len(parsed_questions)
+        st.session_state.marked = [False] * len(parsed_questions)
         
         from time import time
 
@@ -143,6 +236,12 @@ if not st.session_state.exam_started:
 # Session
 # -------------------------
 
+if "submit_confirm" not in st.session_state:
+    st.session_state.submit_confirm = False
+    
+if "unanswered" not in st.session_state:
+    st.session_state.unanswered = []
+
 if "current" not in st.session_state:
     st.session_state.current = 0
 
@@ -159,11 +258,20 @@ question = questions[current]
 # 타이머
 # -------------------------
 
+if st.session_state.exam_started:
+    st_autorefresh(interval=1000, key="timer")
+
 elapsed = int(time() - st.session_state.start_time)
 remaining = st.session_state.time_limit - elapsed
 
 if remaining < 0:
     remaining = 0
+    
+if remaining == 0:
+    st.error("⏰ 시험 시간이 종료되었습니다.")
+
+    # 이후 자동 채점 코드를 실행할 위치
+    grade_exam()
 
 minute = remaining // 60
 second = remaining % 60
@@ -195,6 +303,9 @@ for i in range(len(questions)):
 
         if st.session_state.answers[i] is not None:
             label += " ✅"
+            
+        if st.session_state.marked[i]:
+            label += " ⭐"
 
         if st.button(label, key=f"move_{i}", use_container_width=True):
             st.session_state.current = i
@@ -214,11 +325,15 @@ choice = st.radio(
     key=f"radio_{current}"
 )
 
-st.session_state.answers[current] = choice
 
-# 저장
-if choice:
-    st.session_state.answers[current] = choice
+if st.button(
+    "⭐ 체크 해제" if st.session_state.marked[current] else "⭐ 체크하기",
+    use_container_width=True
+):
+    st.session_state.marked[current] = not st.session_state.marked[current]
+    st.rerun()
+
+st.session_state.answers[current] = choice
 
 st.divider()
 
@@ -255,80 +370,37 @@ with col2:
     else:
 
         if st.button("✅ 시험 제출", use_container_width=True):
-        
-            
-            # 미응답 문제 확인
+
             unanswered = [
-                i
+                i + 1
                 for i, answer in enumerate(st.session_state.answers)
                 if answer is None
             ]
 
             if unanswered:
-                st.warning(
-                    f"미응답 문제가 있습니다. ({', '.join(str(i + 1) for i in unanswered)}번)"
-                )
-
-                # 첫 번째 미응답 문제로 이동
-                st.session_state.current = unanswered[0]
+                st.session_state.unanswered = unanswered
+                st.session_state.submit_confirm = True
                 st.rerun()
-                
-            if st.session_state.answers[current] is None:
-                st.warning("답을 선택해주세요.")
             else:
+                grade_exam()
 
-                score = 0
-                wrong_questions = []
+if st.session_state.submit_confirm:
 
-                for i, q in enumerate(questions):
+    st.warning(
+        f"미응답 문제가 있습니다. ({', '.join(map(str, st.session_state.unanswered))}번)\n\n그래도 제출하시겠습니까?"
+    )
 
-                    if st.session_state.answers[i] == q["answer_index"]:
-                        score += 1
+    col1, col2 = st.columns(2)
 
-                    else:
+    with col1:
+        if st.button("제출"):
+            st.session_state.submit_confirm = False
 
-                        wrong_questions.append({
-                            "number": i + 1,
-                            "question": q["question"],
-                            "choices": q["choices"],
-                            "my_answer": st.session_state.answers[i],
-                            "correct_answer": q["answer_index"]
-                        })
-                        
-                st.session_state.score = score
-                st.session_state.total_questions = len(questions)
-                st.session_state.wrong_questions = wrong_questions
+            # 여기서 기존 채점 코드 실행
+            
+            grade_exam()
 
-                 # 시험 기록 저장
-                exam_id = save_exam(
-                    exam_date=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                    score=score,
-                    total_questions=len(questions),
-                    duration=0
-                )
-                
-                today = datetime.now().strftime("%Y-%m-%d")
-
-                for i, q in enumerate(questions):
-
-                    if st.session_state.answers[i] != q["answer_index"]:
-
-                        save_wrong_answer(
-                            exam_id=exam_id,
-                            question_id=q["id"],
-                            chapter=q["chapter"],
-                            concept=q["concept"],
-                            difficulty=q["difficulty"],
-                            question=q["question"],
-                            choices=q["choices"],
-                            my_answer=st.session_state.answers[i],
-                            correct_answer=q["answer_index"],
-                            explanation=q["explanation"],
-                            wrong_date=today
-                        )
-                # 나중에 오답 저장할 때 사용
-                st.session_state.exam_id = exam_id
-
-                # 결과 페이지 이동
-                st.switch_page("pages/result.py")
-
+    with col2:
+        if st.button("계속 풀기"):
+            st.session_state.submit_confirm = False
+            st.rerun()

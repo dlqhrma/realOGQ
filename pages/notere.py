@@ -65,21 +65,24 @@ if st.button("🤖 AI 해설 생성"):
 
     with st.spinner("AI가 해설을 생성하는 중입니다..."):
 
-        import time
-        time.sleep(2)
 
-    answer = st.session_state.get(f"retry_answer_{idx}")
+        answer = st.session_state.get(f"retry_answer_{idx}")
 
     if "ai_result" not in st.session_state:
 
         with st.spinner("AI가 해설을 생성하는 중입니다..."):
-            result = generate_ai_explanation(
-                question,
-                choices,
-                correct_answer,
-                answer
-            )
-            st.session_state.ai_result = result
+            try:
+                result = generate_ai_explanation(
+                    question,
+                    choices,
+                    correct_answer,
+                    answer
+                )
+                st.session_state.ai_result = result
+
+            except Exception:
+                st.error("AI 해설 생성에 실패했습니다. 잠시 후 다시 시도해주세요.")
+                st.stop()
 
     st.success("AI 해설 생성 완료!")
     
@@ -94,16 +97,22 @@ if st.button("🔄 유사문제 생성"):
 
         with st.spinner("AI가 유사문제를 생성하는 중입니다..."):
 
-            result = generate_similar_problem(
-                question,
-                choices,
-                correct_answer,
-                chapter,
-                concept,
-                difficulty
-            )
+            try:
+                result = generate_similar_problem(
+                    question,
+                    choices,
+                    correct_answer,
+                    chapter,
+                    concept,
+                    difficulty
+                )
 
-            st.session_state.similar_problem = result
+                st.session_state.similar_problem = result
+
+            except Exception:
+                st.error("유사문제 생성에 실패했습니다. 잠시 후 다시 시도해주세요.")
+                st.stop()
+
 
     st.success("유사문제 생성 완료!")
 

@@ -69,7 +69,7 @@ def save_wrong_answer(
 
     conn.commit()
     conn.close()
-def get_exam_history():
+def get_exam_history_for_note():
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -115,3 +115,85 @@ def get_wrong_questions(exam_id):
     conn.close()
 
     return data
+def get_exam_history():
+    conn = sqlite3.connect("cbt.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT
+            exam_date,
+            score,
+            total_questions,
+            duration
+        FROM exams
+        ORDER BY id ASC
+    """)
+
+    rows = cursor.fetchall()
+
+    conn.close()
+
+    return rows
+
+def get_chapter_statistics():
+    conn = sqlite3.connect("cbt.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT
+            chapter,
+            COUNT(*) AS wrong_count
+        FROM wrong_answers
+        GROUP BY chapter
+        ORDER BY wrong_count DESC
+    """)
+
+    rows = cursor.fetchall()
+
+    conn.close()
+
+    return rows
+
+def save_question_history(
+    exam_id,
+    chapter,
+    is_correct
+):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        INSERT INTO question_history
+        (
+            exam_id,
+            chapter,
+            is_correct
+        )
+        VALUES (?, ?, ?)
+    """, (
+        exam_id,
+        chapter,
+        is_correct
+    ))
+
+    conn.commit()
+    conn.close()
+    
+def get_chapter_accuracy():
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT
+            chapter,
+            ROUND(AVG(is_correct) * 100, 1)
+        FROM question_history
+        GROUP BY chapter
+        ORDER BY AVG(is_correct) DESC
+    """)
+
+    rows = cursor.fetchall()
+
+    conn.close()
+
+    return rows

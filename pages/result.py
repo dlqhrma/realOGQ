@@ -16,14 +16,29 @@ if "score" not in st.session_state:
 score = st.session_state.score
 total = st.session_state.total_questions
 wrong = total - score
+duration = st.session_state.get("duration", 0)
 
 percent = int(score / total * 100)
+passed = percent >= 60
 
 st.progress(percent / 100)
 
 st.metric(
     label="최종 점수",
     value=f"{percent}점"
+)
+
+if passed:
+    st.success("🎉 합격")
+else:
+    st.error("❌ 불합격")
+    
+minute = duration // 60
+second = duration % 60
+
+st.metric(
+    label="시험 시간",
+    value=f"{minute}분 {second}초"
 )
 
 col1, col2 = st.columns(2)
