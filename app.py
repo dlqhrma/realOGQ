@@ -8,7 +8,6 @@ st.set_page_config(
 
 st.image("logo.gif", use_container_width=True)
 st.caption("AI 기반 설비보전기능사 필기시험 학습 서비스")
-
 st.divider()
 
 # 카드 1행
