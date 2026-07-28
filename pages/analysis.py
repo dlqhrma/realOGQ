@@ -146,3 +146,4 @@ for exam_date, score, total, duration in recent_history:
         f"{score}/{total}점 | "
         f"{minute}분 {second}초"
     )
+"DELETE"
