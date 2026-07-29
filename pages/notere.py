@@ -51,11 +51,9 @@ st.progress((idx + 1) / len(questions))
 
 st.subheader(f"문제 {idx+1} / {len(questions)}")
 
-st.caption(f"단원 : {chapter}")
-st.caption(f"세부 분류 : {subcategory}")
-st.caption(f"핵심 개념 : {concept}")
-
 st.write(question)
+
+
 
 answer = st.radio(
     "정답을 선택하세요.",
@@ -127,27 +125,54 @@ if st.button("🔄 유사문제 생성"):
                 st.error("유사문제 생성에 실패했습니다. 잠시 후 다시 시도해주세요.")
                 st.stop()
 
-
     st.success("유사문제 생성 완료!")
 
+
 if "similar_problem" in st.session_state:
+
     result = st.session_state.similar_problem
-    problem_part, answer_part = result.split("### 정답", 1)
 
+    question_text = re.search(
+        r"### 문제\s*(.*?)### 보기",
+        result,
+        re.S
+    ).group(1).strip()
 
-    match = re.search(r"①|②|③|④", answer_part)
+    choice_text = re.search(
+        r"### 보기\s*(.*?)### 정답",
+        result,
+        re.S
+    ).group(1).strip()
 
-    if match:
-            ai_correct_answer = match.group()
-    else:
-            ai_correct_answer = None
+    choices = re.findall(
+        r"[①②③④].*?(?=\n[①②③④]|\Z)",
+        choice_text,
+        re.S
+    )
 
-    st.markdown(problem_part)
+    answer = re.search(
+        r"### 정답\s*(.*?)### 해설",
+        result,
+        re.S
+    ).group(1).strip()
+
+    explanation = re.search(
+        r"### 해설\s*(.*)",
+        result,
+        re.S
+    ).group(1).strip()
+
+    ai_correct_answer = answer[0]
+
+    st.subheader("📝 유사문제")
+
+    st.write(question_text)
+
     user_answer = st.radio(
-    "답을 선택하세요.",
-    ["①", "②", "③", "④"],
-    index=None,
-    key=f"similar_answer_{idx}"
+        "답을 선택하세요.",
+        choices,
+        index=None,
+        key=f"similar_answer_{idx}"
     )
 
     if st.button("정답 확인", key=f"similar_check_{idx}"):
@@ -157,20 +182,15 @@ if "similar_problem" in st.session_state:
 
         else:
 
-            if ai_correct_answer is None:
-                st.error("AI 정답을 찾을 수 없습니다.")
-
-            elif user_answer == ai_correct_answer:
+            if user_answer[0] == ai_correct_answer:
                 st.success("🎉 정답입니다!")
 
             else:
                 st.error("❌ 오답입니다.")
-                st.write(f"정답 : **{ai_correct_answer}**")
+                st.write(f"정답 : {ai_correct_answer}")
 
-            # "### 해설" 이후는 제거
-            if "### 해설" in answer_part:
-                answer_part = answer_part.split("### 해설")[0]
-            st.markdown(answer_part)
+            st.markdown("### 해설")
+            st.write(explanation)
     
 st.divider()
 

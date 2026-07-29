@@ -27,8 +27,13 @@ for exam_id, exam_date, score, total, wrong_count in history:
 
         with col1:
             st.write(f"📄 CBT #{exam_id}")
+
+            st.caption(f"📝 {total}문제 CBT")
+
             st.caption(exam_date)
+
             st.write(f"점수 : {score} / {total}")
+
             st.write(f"오답 : {wrong_count}문제")
 
         with col2:

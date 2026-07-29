@@ -123,12 +123,13 @@ if not st.session_state.exam_started:
     **40문제**
     - 실제 시험과 유사한 구성으로 종합 실력을 점검하는 CBT
 
-    ※ 추후 60문제 모드가 추가될 예정입니다.
+    **60문제**
+    - 실전 시험을 충분히 대비하기 위한 고난도 CBT
     """)
 
     count = st.selectbox(
         "문제 수",
-        [20, 40],
+        [20, 40, 60],
         index=0
     )
 
@@ -142,7 +143,7 @@ if not st.session_state.exam_started:
                     difficulty="랜덤",
                     count=count
                 )
-            except Exception as e:
+            except Exception:
                 st.error("AI 문제 생성에 실패했습니다. 잠시 후 다시 시도해주세요.")
                 st.stop()
         # -------------------------
@@ -199,7 +200,7 @@ if not st.session_state.exam_started:
                 subcategory = block.split("### 세부 분류")[1].split("### 난이도")[0].strip()
 
                 # 난이도
-                difficulty = block.split("### 난이도")[1].split("### 핵심 개념")[0].strip()
+                difficulty = block.split("### 난이도")[1].split("### 시험 유형")[0].strip()
 
                 # 핵심 개념
                 concept = block.split("### 핵심 개념")[1].strip()
@@ -220,7 +221,7 @@ if not st.session_state.exam_started:
                 continue
             
         if len(parsed_questions) == 0:
-            st.error("AI 문제를 파싱하지 못했습니다.")
+            st.error("AI 문제를 생성하지 못했습니다. 다시 시도해주세요.")
             st.stop()
         
         st.session_state.questions = parsed_questions
@@ -233,8 +234,10 @@ if not st.session_state.exam_started:
 
         if count == 20:
             st.session_state.time_limit = 20 * 60
-        else:
+        elif count == 40:
             st.session_state.time_limit = 40 * 60
+        else:
+            st.session_state.time_limit = 60 * 60
     
         st.session_state.current = 0
         st.session_state.number_page = 0
