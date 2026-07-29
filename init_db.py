@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS wrong_answers (
     exam_id INTEGER,
     question_id INTEGER,
     chapter TEXT,
+    subcategory TEXT,
     concept TEXT,
     difficulty TEXT,
     question TEXT,
@@ -29,7 +30,8 @@ CREATE TABLE IF NOT EXISTS wrong_answers (
     my_answer INTEGER,
     correct_answer INTEGER,
     explanation TEXT,
-    wrong_date TEXT
+    wrong_date TEXT,
+    exam_count INTEGER
 )
 """)
 

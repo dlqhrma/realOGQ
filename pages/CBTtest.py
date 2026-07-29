@@ -15,8 +15,10 @@ st.set_page_config(page_title="CBT 시험", page_icon="📝", layout="wide")
 st.title("📝 설비보전기능사 CBT")
 
 
+
 if "exam_started" not in st.session_state:
     st.session_state.exam_started = False
+    
     
 if "start_time" not in st.session_state:
     st.session_state.start_time = None
@@ -51,7 +53,6 @@ def grade_exam():
                 "my_answer": st.session_state.answers[i],
                 "correct_answer": q["answer_index"]
             })
-            
         
     st.session_state.score = score
     st.session_state.total_questions = len(questions)
@@ -92,6 +93,7 @@ def grade_exam():
                 exam_id=exam_id,
                 question_id=q["id"],
                 chapter=q["chapter"],
+                subcategory=q["subcategory"],
                 concept=q["concept"],
                 difficulty=q["difficulty"],
                 question=q["question"],
@@ -99,27 +101,30 @@ def grade_exam():
                 my_answer=st.session_state.answers[i],
                 correct_answer=q["answer_index"],
                 explanation=q["explanation"],
-                wrong_date=today
+                wrong_date=today,
+                exam_count=len(questions)
             )
 
     
+    st.session_state.exam_started = False
     st.session_state.exam_id = exam_id
 
-    st.session_state.exam_started = False
-    st.session_state.questions = []
-    st.session_state.answers = []
-    st.session_state.marked = []
-    st.session_state.current = 0
-    st.session_state.start_time = None
-    st.session_state.time_limit = 0
-    st.session_state.submit_confirm = False
-    st.session_state.unanswered = []
-
     st.switch_page("pages/result.py")
+    st.stop()
 
 if not st.session_state.exam_started:
 
-    st.write("실제 설비보전기능사 CBT처럼 전 범위에서 문제가 출제됩니다.")
+    st.info("""
+    ### 📚 CBT 시험 안내
+
+    **20문제**
+    - 핵심 개념을 빠르게 점검하는 연습용 CBT
+
+    **40문제**
+    - 실제 시험과 유사한 구성으로 종합 실력을 점검하는 CBT
+
+    ※ 추후 60문제 모드가 추가될 예정입니다.
+    """)
 
     count = st.selectbox(
         "문제 수",
@@ -187,8 +192,11 @@ if not st.session_state.exam_started:
                 # 해설
                 explanation = block.split("### 해설")[1].split("### 단원")[0].strip()
 
-                # 단원
-                chapter = block.split("### 단원")[1].split("### 난이도")[0].strip()
+               # 단원
+                chapter = block.split("### 단원")[1].split("### 세부 분류")[0].strip()
+
+                # 세부 분류
+                subcategory = block.split("### 세부 분류")[1].split("### 난이도")[0].strip()
 
                 # 난이도
                 difficulty = block.split("### 난이도")[1].split("### 핵심 개념")[0].strip()
@@ -199,6 +207,7 @@ if not st.session_state.exam_started:
                 parsed_questions.append({
                     "id": idx,
                     "chapter": chapter,
+                    "subcategory": subcategory,
                     "difficulty": difficulty,
                     "question": question,
                     "choices": choices,
@@ -228,6 +237,7 @@ if not st.session_state.exam_started:
             st.session_state.time_limit = 40 * 60
     
         st.session_state.current = 0
+        st.session_state.number_page = 0
         st.session_state.exam_started = True
 
         st.rerun()
@@ -244,6 +254,9 @@ if "unanswered" not in st.session_state:
 
 if "current" not in st.session_state:
     st.session_state.current = 0
+    
+if "number_page" not in st.session_state:
+    st.session_state.number_page = 0
 
 if "answers" not in st.session_state:
     st.session_state.answers = [None] * len(questions)
@@ -253,6 +266,11 @@ if len(questions) == 0:
     st.warning("문제가 없습니다.")
     st.stop()
 question = questions[current]
+
+page = st.session_state.number_page
+
+start = page * 20
+end = min(start + 20, len(questions))
 
 # -------------------------
 # 타이머
@@ -290,9 +308,32 @@ st.progress(progress)
 # 문제 번호 이동
 # -------------------------
 
+if len(questions) > 20:
+
+    st.markdown("#### 문제 번호")
+
+    total_page = (len(questions) + 19) // 20
+
+    tabs = st.columns(total_page)
+
+    for p in range(total_page):
+
+        start_num = p * 20 + 1
+        end_num = min((p + 1) * 20, len(questions))
+
+        with tabs[p]:
+
+            if st.button(
+                f"{start_num}~{end_num}",
+                key=f"page_{p}",
+                use_container_width=True,
+            ):
+                st.session_state.number_page = p
+                st.rerun()
+
 cols = st.columns(5)
 
-for i in range(len(questions)):
+for i in range(start, end):
 
     with cols[i % 5]:
 
@@ -310,6 +351,8 @@ for i in range(len(questions)):
         if st.button(label, key=f"move_{i}", use_container_width=True):
             st.session_state.current = i
             st.rerun()
+            
+
 
 st.subheader(f"문제 {current+1} / {len(questions)}")
 

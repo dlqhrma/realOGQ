@@ -33,13 +33,27 @@ if "retry_index" not in st.session_state:
 
 idx = st.session_state.retry_index
 
-chapter, concept, difficulty, question, choices, my_answer, correct_answer, explanation = questions[idx]
+(
+    chapter,
+    subcategory,
+    concept,
+    difficulty,
+    question,
+    choices,
+    my_answer,
+    correct_answer,
+    explanation
+) = questions[idx]
 
 choices = ast.literal_eval(choices)
 
 st.progress((idx + 1) / len(questions))
 
 st.subheader(f"문제 {idx+1} / {len(questions)}")
+
+st.caption(f"단원 : {chapter}")
+st.caption(f"세부 분류 : {subcategory}")
+st.caption(f"핵심 개념 : {concept}")
 
 st.write(question)
 

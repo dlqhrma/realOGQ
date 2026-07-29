@@ -63,13 +63,30 @@ with col1:
 
     if st.button("🏠 Home", use_container_width=True):
 
+        st.session_state.exam_started = False
+        st.session_state.questions = []
+        st.session_state.answers = []
+        st.session_state.marked = []
         st.session_state.current = 0
-        st.session_state.answers = [None] * total
+        st.session_state.start_time = None
+        st.session_state.time_limit = 0
+        st.session_state.submit_confirm = False
+        st.session_state.unanswered = []
 
         st.switch_page("app.py")
 
 with col2:
 
     if st.button("📂 오답노트", use_container_width=True):
+
+        st.session_state.exam_started = False
+        st.session_state.questions = []
+        st.session_state.answers = []
+        st.session_state.marked = []
+        st.session_state.current = 0
+        st.session_state.start_time = None
+        st.session_state.time_limit = 0
+        st.session_state.submit_confirm = False
+        st.session_state.unanswered = []
 
         st.switch_page("pages/note.py")
