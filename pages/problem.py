@@ -71,7 +71,7 @@ if st.button("🤖 문제 생성", use_container_width=True):
                 count
             )
         except Exception:
-            st.error("AI 문제 생성에 실패했습니다. 잠시 후 다시 시도해주세요.")
+            st.exception("ai 문제 생성을 실패했습니다. 잠시 후 가시 시도해 주세요.")
             st.stop()
     st.session_state.generated_problems = result
     
@@ -169,12 +169,19 @@ if st.session_state.generated_problems:
             
             with st.spinner("AI가 해설을 생성하는 중입니다..."):
 
-                st.session_state.ai_explanation = generate_ai_explanation(
-                    question=question,
-                    choices=choices,
-                    correct_answer=answer_index,
-                    user_answer=user_answer
-                )
+                try:
+                    st.session_state.ai_explanation = generate_ai_explanation(
+                        question=question,
+                        choices=choices,
+                        correct_answer=answer_index,
+                        user_answer=user_answer
+                    )
+
+                except Exception:
+                    st.session_state.ai_explanation = (
+                        "AI 해설을 생성하지 못했습니다.\n"
+                        "잠시 후 다시 시도해주세요."
+                    )
                 
     if st.session_state.show_result:
 
@@ -208,14 +215,30 @@ if st.session_state.generated_problems:
             st.write(f"오답 : {wrong}")
             st.write(f"정답률 : {accuracy:.1f}%")
         
-            if st.button("다시 문제 생성"):
+            col1, col2 = st.columns(2)
 
-                st.session_state.generated_problems = ""
-                st.session_state.problem_list = []
-                st.session_state.current_index = 0
-                st.session_state.score = 0
-                st.session_state.show_result = False
-                st.session_state.answered = False
-                st.session_state.ai_explanation = ""
+            with col1:
+                if st.button("다시 문제 생성", use_container_width=True):
 
-                st.rerun()
+                    st.session_state.generated_problems = ""
+                    st.session_state.problem_list = []
+                    st.session_state.current_index = 0
+                    st.session_state.score = 0
+                    st.session_state.show_result = False
+                    st.session_state.answered = False
+                    st.session_state.ai_explanation = ""
+
+                    st.rerun()
+
+            with col2:
+                if st.button("🏠 Home", use_container_width=True):
+
+                    st.session_state.generated_problems = ""
+                    st.session_state.problem_list = []
+                    st.session_state.current_index = 0
+                    st.session_state.score = 0
+                    st.session_state.show_result = False
+                    st.session_state.answered = False
+                    st.session_state.ai_explanation = ""
+
+                    st.switch_page("app.py")

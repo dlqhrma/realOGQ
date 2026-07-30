@@ -1,9 +1,11 @@
-import os
-from dotenv import load_dotenv
+
 from google import genai
+from dotenv import load_dotenv
+import os
 
+load_dotenv(override=True)
 
-load_dotenv()
+print("ENV:", os.getenv("GEMINI_API_KEY"))
 
 client = genai.Client(
     api_key=os.getenv("GEMINI_API_KEY")
@@ -157,3 +159,11 @@ def generate_problems(
     )
 
     return response.text
+
+key = os.getenv("GEMINI_API_KEY")
+
+if key:
+    print("읽은 키:", key[:20])
+else:
+    print("API Key를 읽지 못했습니다.")
+    

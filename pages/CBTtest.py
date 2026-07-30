@@ -14,7 +14,7 @@ st.set_page_config(page_title="CBT 시험", page_icon="📝", layout="wide")
 
 st.title("📝 설비보전기능사 CBT")
 
-
+print("CBT 페이지 실행")
 
 if "exam_started" not in st.session_state:
     st.session_state.exam_started = False
@@ -37,6 +37,22 @@ if "marked" not in st.session_state:
 
 def grade_exam():
 
+    if st.session_state.get("exam_finished", False):
+        return
+
+    st.session_state.exam_finished = True
+
+    print("===== grade_exam 시작 =====")
+
+    if st.session_state.grading:
+        return
+
+    st.session_state.grading = True
+
+    # 가장 먼저 시험 종료 처리
+    st.session_state.exam_started = False
+
+
     score = 0
     wrong_questions = []
 
@@ -56,6 +72,8 @@ def grade_exam():
         
     st.session_state.score = score
     st.session_state.total_questions = len(questions)
+    print("score 저장:", score)
+    print("total 저장:", len(questions))
     st.session_state.wrong_questions = wrong_questions
     
     if st.session_state.start_time is not None:
@@ -108,6 +126,12 @@ def grade_exam():
     
     st.session_state.exam_started = False
     st.session_state.exam_id = exam_id
+    
+    print(st.session_state.get("score"))
+    print(st.session_state.get("total_questions"))
+    
+    print(">>> result 페이지로 이동")
+    print("exam_started =", st.session_state.exam_started)
 
     st.switch_page("pages/result.py")
     st.stop()
@@ -242,6 +266,8 @@ if not st.session_state.exam_started:
         st.session_state.current = 0
         st.session_state.number_page = 0
         st.session_state.exam_started = True
+        st.session_state.grading = False
+        st.session_state.exam_finished = False
 
         st.rerun()
 
@@ -251,6 +277,9 @@ if not st.session_state.exam_started:
 
 if "submit_confirm" not in st.session_state:
     st.session_state.submit_confirm = False
+    
+if "grading" not in st.session_state:
+    st.session_state.grading = False
     
 if "unanswered" not in st.session_state:
     st.session_state.unanswered = []
@@ -278,20 +307,35 @@ end = min(start + 20, len(questions))
 # -------------------------
 # 타이머
 # -------------------------
+remaining = 0
 
-if st.session_state.exam_started:
-    st_autorefresh(interval=1000, key="timer")
+if (
+    st.session_state.exam_started
+    and st.session_state.start_time is not None
+):
 
-elapsed = int(time() - st.session_state.start_time)
-remaining = st.session_state.time_limit - elapsed
+    # st_autorefresh(interval=1000, key="timer")
 
-if remaining < 0:
+    elapsed = int(time() - st.session_state.start_time)
+    remaining = max(
+        0,
+        st.session_state.time_limit - elapsed
+    )
+
+    if remaining < 0:
+        remaining = 0
+
+else:
     remaining = 0
-    
-if remaining == 0:
-    st.error("⏰ 시험 시간이 종료되었습니다.")
 
-    # 이후 자동 채점 코드를 실행할 위치
+
+    
+if (
+    st.session_state.exam_started
+    and not st.session_state.grading
+    and remaining == 0
+):
+    st.error("⏰ 시험 시간이 종료되었습니다.")
     grade_exam()
 
 minute = remaining // 60
@@ -415,7 +459,11 @@ with col2:
 
     else:
 
-        if st.button("✅ 시험 제출", use_container_width=True):
+        if st.button(
+            "✅ 시험 제출",
+            use_container_width=True,
+            disabled=st.session_state.grading
+        ):
 
             unanswered = [
                 i + 1
@@ -428,7 +476,8 @@ with col2:
                 st.session_state.submit_confirm = True
                 st.rerun()
             else:
-                grade_exam()
+                if not st.session_state.grading:
+                    grade_exam()
 
 if st.session_state.submit_confirm:
 

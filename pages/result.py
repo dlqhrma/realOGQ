@@ -1,3 +1,4 @@
+
 import streamlit as st
 
 st.set_page_config(
@@ -8,13 +9,18 @@ st.set_page_config(
 
 st.title("📊 CBT 시험 결과")
 
+print("RESULT 페이지 실행")
+
 # 시험을 보지 않고 들어온 경우
-if "score" not in st.session_state:
+required = ["score", "total_questions"]
+
+if any(k not in st.session_state for k in required):
     st.warning("시험 결과가 없습니다.")
     st.stop()
 
 score = st.session_state.score
 total = st.session_state.total_questions
+
 wrong = total - score
 duration = st.session_state.get("duration", 0)
 
@@ -64,6 +70,7 @@ with col1:
     if st.button("🏠 Home", use_container_width=True):
 
         st.session_state.exam_started = False
+        st.session_state.exam_finished = False
         st.session_state.questions = []
         st.session_state.answers = []
         st.session_state.marked = []
@@ -80,6 +87,7 @@ with col2:
     if st.button("📂 오답노트", use_container_width=True):
 
         st.session_state.exam_started = False
+        st.session_state.exam_finished = False
         st.session_state.questions = []
         st.session_state.answers = []
         st.session_state.marked = []
