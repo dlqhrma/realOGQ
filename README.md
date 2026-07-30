@@ -732,12 +732,12 @@ SQLite Database
 
 # 개발 환경 및 실행 구조
 
-
 ## 실행 환경
 
 - Python 3.x
 - Streamlit Server
 - SQLite Database
+
 
 ## 실행 방법
 
@@ -747,7 +747,7 @@ Python 환경에서 필요한 라이브러리를 설치합니다.
 
 ```bash
 pip install -r requirements.txt
-
+```
 
 ## AI 처리 과정
 
