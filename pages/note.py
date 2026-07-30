@@ -7,15 +7,18 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("📂 오답노트")
+col1, col2 = st.columns([6, 1])
+
+with col1:
+    st.title("📂 오답노트")
+
+with col2:
+    if st.button("🏠 Home", use_container_width=True):
+        st.switch_page("app.py")
 
 history = get_exam_history_for_note()
 
-if len(history) == 0:
-    st.warning("오답노트가 없습니다.")
-    if st.button("🏠 Home"):
-        st.switch_page("app.py")
-    st.stop()
+
 
 st.subheader("시험 기록")
 

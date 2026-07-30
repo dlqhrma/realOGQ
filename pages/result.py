@@ -9,7 +9,7 @@ st.set_page_config(
 
 st.title("📊 CBT 시험 결과")
 
-print("RESULT 페이지 실행")
+
 
 # 시험을 보지 않고 들어온 경우
 required = ["score", "total_questions"]

@@ -159,11 +159,3 @@ def generate_problems(
     )
 
     return response.text
-
-key = os.getenv("GEMINI_API_KEY")
-
-if key:
-    print("읽은 키:", key[:20])
-else:
-    print("API Key를 읽지 못했습니다.")
-    

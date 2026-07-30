@@ -14,7 +14,7 @@ st.set_page_config(page_title="CBT 시험", page_icon="📝", layout="wide")
 
 st.title("📝 설비보전기능사 CBT")
 
-print("CBT 페이지 실행")
+
 
 if "exam_started" not in st.session_state:
     st.session_state.exam_started = False
@@ -42,7 +42,6 @@ def grade_exam():
 
     st.session_state.exam_finished = True
 
-    print("===== grade_exam 시작 =====")
 
     if st.session_state.grading:
         return
