@@ -739,6 +739,15 @@ SQLite Database
 - Streamlit Server
 - SQLite Database
 
+## 실행 방법
+
+### 환경 설정
+
+Python 환경에서 필요한 라이브러리를 설치합니다.
+
+```bash
+pip install -r requirements.txt
+
 
 ## AI 처리 과정
 
