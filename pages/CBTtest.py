@@ -7,7 +7,7 @@ from database import (
 from datetime import datetime
 from ai_service import generate_problems
 from time import time
-from streamlit_autorefresh import st_autorefresh
+
 import re
 
 st.set_page_config(page_title="CBT 시험", page_icon="📝", layout="wide")
@@ -313,7 +313,7 @@ if (
     and st.session_state.start_time is not None
 ):
 
-    # st_autorefresh(interval=1000, key="timer")
+
 
     elapsed = int(time() - st.session_state.start_time)
     remaining = max(
