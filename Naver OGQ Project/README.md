@@ -1,4 +1,4 @@
-# AI 설비보전기능사 CBT Coachg
+# AI 설비보전기능사 CBT Coach
 
 AI 기반 맞춤형 학습을 제공하는 설비보전기능사 필기시험 CBT 학습 웹 서비스
 
