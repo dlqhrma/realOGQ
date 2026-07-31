@@ -257,7 +257,7 @@ if not st.session_state.exam_started:
         st.session_state.start_time = time()
 
         if count == 20:
-            st.session_state.time_limit = 20 * 60
+            st.session_state.time_limit = 20 
         elif count == 40:
             st.session_state.time_limit = 40 * 60
         else:
