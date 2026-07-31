@@ -42,7 +42,7 @@ for exam_id, exam_date, score, total, wrong_count in history:
         with col2:
             if st.button("다시 풀기", key=exam_id):
                 st.session_state.selected_exam = exam_id
-                st.switch_page("pages/notere.py")
+                st.switch_page("pages/wrong_review.py")
 
         st.divider()
 

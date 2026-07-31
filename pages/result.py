@@ -97,4 +97,4 @@ with col2:
         st.session_state.submit_confirm = False
         st.session_state.unanswered = []
 
-        st.switch_page("pages/note.py")
+        st.switch_page("pages/wrong_note.py")
