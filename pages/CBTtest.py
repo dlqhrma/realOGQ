@@ -6,8 +6,9 @@ from database import (
 )
 from datetime import datetime
 from ai_service import generate_problems
-from time import time
 
+from time import time
+import streamlit.components.v1 as components
 import re
 
 st.set_page_config(page_title="CBT 시험", page_icon="📝", layout="wide")
@@ -256,7 +257,7 @@ if not st.session_state.exam_started:
         st.session_state.start_time = time()
 
         if count == 20:
-            st.session_state.time_limit = 20 * 60
+            st.session_state.time_limit = 20 
         elif count == 40:
             st.session_state.time_limit = 40 * 60
         else:
@@ -329,19 +330,59 @@ else:
 
 
     
+elapsed = 0
+remaining = 0
+
+if (
+    st.session_state.exam_started
+    and st.session_state.start_time is not None
+):
+    elapsed = int(time() - st.session_state.start_time)
+    remaining = max(
+        0,
+        st.session_state.time_limit - elapsed
+    )
+
 if (
     st.session_state.exam_started
     and not st.session_state.grading
-    and remaining == 0
+    and elapsed >= st.session_state.time_limit
 ):
     st.error("⏰ 시험 시간이 종료되었습니다.")
     grade_exam()
+    
+if st.session_state.exam_started:
 
-minute = remaining // 60
-second = remaining % 60
+    components.html(
+        f"""
+        <div style="font-size:28px;font-weight:bold;text-align:center;">
+            ⏱ 남은 시간 :
+            <span id="timer"></span>
+        </div>
 
-st.metric("⏱ 남은 시간", f"{minute:02d}:{second:02d}")
+        <script>
+        let remain = {remaining};
 
+        function updateTimer(){{
+            const m = Math.floor(remain / 60);
+            const s = remain % 60;
+
+            document.getElementById("timer").innerHTML =
+                String(m).padStart(2,"0") + ":" +
+                String(s).padStart(2,"0");
+
+            if(remain > 0){{
+                remain--;
+            }}
+        }}
+
+        updateTimer();
+        setInterval(updateTimer,1000);
+        </script>
+        """,
+        height=70,
+    )
+    
 # -------------------------
 # 진행률
 # -------------------------
