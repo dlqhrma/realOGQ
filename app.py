@@ -1,6 +1,10 @@
 import streamlit as st
 from database import get_chapter_accuracy
+import uuid
 
+if "session_id" not in st.session_state:
+    st.session_state.session_id = str(uuid.uuid4())
+    
 st.set_page_config(
     page_title="AI 설비보전기능사 CBT Coach",   
     layout="wide"
@@ -45,7 +49,7 @@ st.divider()
 
 st.subheader("📈 최근 학습 현황")
 
-accuracy = get_chapter_accuracy()
+accuracy = get_chapter_accuracy(st.session_state.session_id)
 
 if accuracy:
 

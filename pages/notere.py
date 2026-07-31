@@ -22,7 +22,10 @@ if "selected_exam" not in st.session_state:
 
 exam_id = st.session_state.selected_exam
 
-questions = get_wrong_questions(exam_id)
+questions = get_wrong_questions(
+    st.session_state.session_id,
+    exam_id
+)
 
 if len(questions) == 0:
     st.warning("오답이 없습니다.")

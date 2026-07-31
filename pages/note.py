@@ -16,7 +16,7 @@ with col2:
     if st.button("🏠 Home", use_container_width=True):
         st.switch_page("app.py")
 
-history = get_exam_history_for_note()
+history = get_exam_history_for_note(st.session_state.session_id)
 
 
 

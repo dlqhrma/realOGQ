@@ -7,6 +7,7 @@ cursor = conn.cursor()
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS exams (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id TEXT,
     exam_date TEXT,
     score INTEGER,
     total_questions INTEGER,
@@ -19,6 +20,7 @@ CREATE TABLE IF NOT EXISTS exams (
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS wrong_answers (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id TEXT,
     exam_id INTEGER,
     question_id INTEGER,
     chapter TEXT,
@@ -39,6 +41,7 @@ CREATE TABLE IF NOT EXISTS wrong_answers (
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS question_history (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id TEXT,
     exam_id INTEGER,
     chapter TEXT,
     is_correct INTEGER
