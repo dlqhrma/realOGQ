@@ -5,13 +5,10 @@ cursor = conn.cursor()
 
 # 시험 기록
 cursor.execute("""
-CREATE TABLE IF NOT EXISTS exams (
+CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    session_id TEXT,
-    exam_date TEXT,
-    score INTEGER,
-    total_questions INTEGER,
-    duration INTEGER
+    username TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL
 )
 """)
 
