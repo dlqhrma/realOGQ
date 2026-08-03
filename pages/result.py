@@ -80,7 +80,7 @@ with col1:
         st.session_state.submit_confirm = False
         st.session_state.unanswered = []
 
-        st.switch_page("app.py")
+        st.switch_page("pages/home.py")
 
 with col2:
 

@@ -241,4 +241,4 @@ if st.session_state.generated_problems:
                     st.session_state.answered = False
                     st.session_state.ai_explanation = ""
 
-                    st.switch_page("app.py")
+                    st.switch_page("pages/.py")

@@ -14,7 +14,7 @@ with col1:
 
 with col2:
     if st.button("🏠 Home", use_container_width=True):
-        st.switch_page("app.py")
+        st.switch_page("pages/home.py")
 
 history = get_exam_history_for_note(
     st.session_state.user_id
@@ -49,4 +49,4 @@ for exam_id, exam_date, score, total, wrong_count in history:
         st.divider()
 
 if st.button("🏠 Home"):
-    st.switch_page("app.py")
+    st.switch_page("pages/home.py")

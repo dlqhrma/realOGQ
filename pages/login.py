@@ -23,7 +23,7 @@ if st.button("로그인", use_container_width=True):
         if user:
             st.session_state.user_id = user[0]
             st.success("로그인 성공!")
-            st.switch_page("app.py")
+            st.rerun()
 
         else:
             st.error("아이디 또는 비밀번호가 올바르지 않습니다.")
