@@ -6,15 +6,15 @@ def get_connection():
     return sqlite3.connect(DB_NAME)
 
 
-def save_exam(session_id, exam_date, score, total_questions, duration):
+def save_exam(user_id, exam_date, score, total_questions, duration):
     conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute("""
         INSERT INTO exams
-        (session_id, exam_date, score, total_questions, duration)
+        (user_id, exam_date, score, total_questions, duration)
         VALUES (?, ?, ?, ?, ?)
-    """, (session_id, exam_date, score, total_questions, duration))
+    """, (user_id, exam_date, score, total_questions, duration))
 
     exam_id = cursor.lastrowid
 
@@ -23,7 +23,7 @@ def save_exam(session_id, exam_date, score, total_questions, duration):
 
     return exam_id
 def save_wrong_answer(
-    session_id,
+    user_id,
     exam_id,
     question_id,
     chapter,
@@ -44,7 +44,7 @@ def save_wrong_answer(
 
     cursor.execute("""
         INSERT INTO wrong_answers (
-            session_id,
+            user_id,
             exam_id,
             question_id,
             chapter,
@@ -61,7 +61,7 @@ def save_wrong_answer(
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
-            session_id,
+            user_id,
             exam_id,
             question_id,
             chapter,
@@ -79,7 +79,7 @@ def save_wrong_answer(
 
     conn.commit()
     conn.close()
-def get_exam_history_for_note(session_id):
+def get_exam_history_for_note(user_id):
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -93,17 +93,17 @@ def get_exam_history_for_note(session_id):
         FROM exams e
         LEFT JOIN wrong_answers w
         ON e.id = w.exam_id
-        WHERE e.session_id = ?
+        WHERE e.user_id = ?
         GROUP BY e.id
         ORDER BY e.id DESC
-    """, (session_id,))
+    """, (user_id,))
 
     data = cursor.fetchall()
 
     conn.close()
 
     return data
-def get_wrong_questions(session_id, exam_id):
+def get_wrong_questions(user_id, exam_id):
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -119,16 +119,16 @@ def get_wrong_questions(session_id, exam_id):
         correct_answer,
         explanation
         FROM wrong_answers
-        WHERE session_id = ?
+        WHERE user_id = ?
         AND exam_id = ?
-    """, (session_id, exam_id))
+    """, (user_id, exam_id))
 
     data = cursor.fetchall()
 
     conn.close()
 
     return data
-def get_exam_history(session_id):
+def get_exam_history(user_id):
     conn = sqlite3.connect("cbt.db")
     cursor = conn.cursor()
 
@@ -139,9 +139,9 @@ def get_exam_history(session_id):
             total_questions,
             duration
         FROM exams
-        WHERE session_id = ?
+        WHERE user_id = ?
         ORDER BY id ASC
-    """,(session_id,))
+    """,(user_id,))
 
     rows = cursor.fetchall()
 
@@ -149,7 +149,7 @@ def get_exam_history(session_id):
 
     return rows
 
-def get_chapter_statistics(session_id):
+def get_chapter_statistics(user_id):
     conn = sqlite3.connect("cbt.db")
     cursor = conn.cursor()
 
@@ -158,9 +158,9 @@ def get_chapter_statistics(session_id):
             chapter,
             COUNT(*) AS wrong_count
         FROM wrong_answers
-        WHERE session_id = ?
+        WHERE user_id = ?
         GROUP BY chapter
-    """,(session_id,))
+    """,(user_id,))
 
     rows = cursor.fetchall()
 
@@ -169,7 +169,7 @@ def get_chapter_statistics(session_id):
     return rows
 
 def save_question_history(
-    session_id,
+    user_id,
     exam_id,
     chapter,
     is_correct
@@ -179,14 +179,14 @@ def save_question_history(
 
     cursor.execute("""
         INSERT INTO question_history(
-            session_id,
+            user_id,
             exam_id,
             chapter,
             is_correct
         )
         VALUES (?, ?, ?, ?)
     """, (
-            session_id,
+            user_id,
             exam_id,
             chapter,
             is_correct
@@ -195,7 +195,7 @@ def save_question_history(
     conn.commit()
     conn.close()
     
-def get_chapter_accuracy(session_id):
+def get_chapter_accuracy(user_id):
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -204,12 +204,50 @@ def get_chapter_accuracy(session_id):
             chapter,
             ROUND(AVG(is_correct) * 100, 1)
         FROM question_history
-        WHERE session_id = ?
+        WHERE user_id = ?
         GROUP BY chapter
-    """, (session_id,))
+    """, (user_id,))
 
     rows = cursor.fetchall()
 
     conn.close()
 
     return rows
+
+
+def create_user(username, password):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("""
+            INSERT INTO users(username, password)
+            VALUES (?, ?)
+        """, (username, password))
+
+        conn.commit()
+        return True
+
+    except sqlite3.IntegrityError:
+        return False
+
+    finally:
+        conn.close()
+
+
+def login_user(username, password):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT id
+        FROM users
+        WHERE username = ?
+        AND password = ?
+    """, (username, password))
+
+    user = cursor.fetchone()
+
+    conn.close()
+
+    return user

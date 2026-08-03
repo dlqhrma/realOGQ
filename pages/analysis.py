@@ -16,7 +16,7 @@ st.set_page_config(
 
 st.title("📊 학습 분석")
 
-history = get_exam_history(st.session_state.session_id)
+history = get_exam_history(st.session_state.user_id)
 
 if len(history) == 0:
     st.warning("아직 시험 기록이 없습니다.")
@@ -87,7 +87,7 @@ st.divider()
 
 st.subheader("📚 단원별 정답률")
 
-accuracy = get_chapter_accuracy(st.session_state.session_id)
+accuracy = get_chapter_accuracy(st.session_state.user_id)
 
 if accuracy:
 
@@ -104,7 +104,7 @@ else:
 
 st.divider()
 
-chapter_stats = get_chapter_statistics(st.session_state.session_id)
+chapter_stats = get_chapter_statistics(st.session_state.user_id)
 
 st.subheader("🔥 많이 틀린 단원 TOP 3")
 

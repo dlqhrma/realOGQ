@@ -2,8 +2,8 @@ import streamlit as st
 from database import get_chapter_accuracy
 import uuid
 
-if "session_id" not in st.session_state:
-    st.session_state.session_id = str(uuid.uuid4())
+if "user_id" not in st.session_state:
+    st.switch_page("pages/login.py")
     
 st.set_page_config(
     page_title="AI 설비보전기능사 CBT Coach",   
@@ -14,6 +14,15 @@ st.image("logo.gif", use_container_width=True)
 st.caption("AI 기반 설비보전기능사 필기시험 학습 서비스")
 st.divider()
 
+col1, col2 = st.columns([6,1])
+
+with col2:
+    if st.button("🚪 로그아웃"):
+
+        st.session_state.clear()
+
+        st.switch_page("pages/login.py")
+        
 # 카드 1행
 col1, col2 = st.columns(2)
 
@@ -49,7 +58,7 @@ st.divider()
 
 st.subheader("📈 최근 학습 현황")
 
-accuracy = get_chapter_accuracy(st.session_state.session_id)
+accuracy = get_chapter_accuracy(st.session_state.user_id)
 
 if accuracy:
 

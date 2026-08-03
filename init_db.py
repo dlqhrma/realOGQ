@@ -12,12 +12,25 @@ CREATE TABLE IF NOT EXISTS users (
 )
 """)
 
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS exams (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    exam_date TEXT,
+    score INTEGER,
+    total_questions INTEGER,
+    duration INTEGER
+)
+""")
+
+
+
 # 오답노트
 # 오답노트
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS wrong_answers (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    session_id TEXT,
+    user_id INTEGER,
     exam_id INTEGER,
     question_id INTEGER,
     chapter TEXT,
@@ -38,7 +51,7 @@ CREATE TABLE IF NOT EXISTS wrong_answers (
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS question_history (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    session_id TEXT,
+    user_id INTEGER,
     exam_id INTEGER,
     chapter TEXT,
     is_correct INTEGER

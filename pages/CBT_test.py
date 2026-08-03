@@ -84,7 +84,7 @@ def grade_exam():
     st.session_state.duration = duration
 
     exam_id = save_exam(
-        session_id=st.session_state.session_id,
+        user_id=st.session_state.user_id,
         exam_date=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         score=score,
         total_questions=len(questions),
@@ -96,7 +96,7 @@ def grade_exam():
         correct = st.session_state.answers[i] == q["answer_index"]
 
         save_question_history(
-            session_id=st.session_state.session_id,
+            user_id=st.session_state.user_id,
             exam_id=exam_id,
             chapter=q["chapter"],
             is_correct=1 if correct else 0
@@ -110,7 +110,7 @@ def grade_exam():
             
 
             save_wrong_answer(
-                session_id=st.session_state.session_id,
+                user_id=st.session_state.user_id,
                 exam_id=exam_id,
                 question_id=q["id"],
                 chapter=q["chapter"],

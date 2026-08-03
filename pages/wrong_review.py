@@ -23,7 +23,7 @@ if "selected_exam" not in st.session_state:
 exam_id = st.session_state.selected_exam
 
 questions = get_wrong_questions(
-    st.session_state.session_id,
+    st.session_state.user_id,
     exam_id
 )
 
@@ -97,7 +97,6 @@ if st.button("🤖 AI 해설 생성"):
 
             except Exception:
                 st.error("AI 해설 생성에 실패했습니다. 잠시 후 다시 시도해주세요.")
-                st.stop()
 
     st.success("AI 해설 생성 완료!")
     
