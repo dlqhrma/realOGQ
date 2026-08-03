@@ -7,31 +7,31 @@ st.set_page_config(
 
 home = st.Page(
     "pages/home.py",
-    title="🏠 홈",
+    title="홈",
     icon="🏠"
 )
 
 problem = st.Page(
     "pages/problem_generator.py",
-    title="📘 AI 문제 생성",
+    title="AI 문제 생성",
     icon="📘"
 )
 
 cbt = st.Page(
     "pages/CBT_test.py",
-    title="📝 CBT 시험",
+    title="CBT 시험",
     icon="📝"
 )
 
 note = st.Page(
     "pages/wrong_note.py",
-    title="📂 오답노트",
+    title="오답노트",
     icon="📂"
 )
 
 analysis = st.Page(
     "pages/analysis.py",
-    title="📊 학습분석",
+    title="학습분석",
     icon="📊"
 )
 

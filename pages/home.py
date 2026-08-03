@@ -21,7 +21,8 @@ with col2:
 
         st.session_state.clear()
 
-        st.switch_page("pages/login.py")
+        st.session_state.clear()
+        st.rerun()
         
 # 카드 1행
 col1, col2 = st.columns(2)
