@@ -5,7 +5,6 @@ import os
 
 load_dotenv(override=True)
 
-print("ENV:", os.getenv("GEMINI_API_KEY"))
 
 client = genai.Client(
     api_key=os.getenv("GEMINI_API_KEY")
