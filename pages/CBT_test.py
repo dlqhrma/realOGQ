@@ -26,6 +26,9 @@ if "start_time" not in st.session_state:
 
 if "time_limit" not in st.session_state:
     st.session_state.time_limit = 0
+    
+if "time_expired" not in st.session_state:
+    st.session_state.time_expired = False
 
 if "questions" not in st.session_state:
     st.session_state.questions = []
