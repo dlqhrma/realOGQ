@@ -314,81 +314,43 @@ end = min(start + 20, len(questions))
 # -------------------------
 # 타이머
 # -------------------------
-remaining = 0
 
-if (
-    st.session_state.exam_started
-    and st.session_state.start_time is not None
-):
+@st.fragment(run_every="1s")
+def show_timer():
 
-
+    if not st.session_state.exam_started:
+        return
 
     elapsed = int(time() - st.session_state.start_time)
+
     remaining = max(
         0,
         st.session_state.time_limit - elapsed
     )
 
-    if remaining < 0:
-        remaining = 0
+    minutes = remaining // 60
+    seconds = remaining % 60
 
-else:
-    remaining = 0
-
-
-    
-elapsed = 0
-remaining = 0
-
-if (
-    st.session_state.exam_started
-    and st.session_state.start_time is not None
-):
-    elapsed = int(time() - st.session_state.start_time)
-    remaining = max(
-        0,
-        st.session_state.time_limit - elapsed
-    )
-
-if (
-    st.session_state.exam_started
-    and not st.session_state.grading
-    and elapsed >= st.session_state.time_limit
-):
-    st.error("⏰ 시험 시간이 종료되었습니다.")
-    grade_exam()
-    
-if st.session_state.exam_started:
-
-    components.html(
+    st.markdown(
         f"""
-        <div style="font-size:28px;font-weight:bold;text-align:center;">
-            ⏱ 남은 시간 :
-            <span id="timer"></span>
+        <div style="
+            font-size:28px;
+            font-weight:bold;
+            text-align:center;
+            margin-bottom:20px;
+        ">
+            ⏱ 남은 시간 : {minutes:02d}:{seconds:02d}
         </div>
-
-        <script>
-        let remain = {remaining};
-
-        function updateTimer(){{
-            const m = Math.floor(remain / 60);
-            const s = remain % 60;
-
-            document.getElementById("timer").innerHTML =
-                String(m).padStart(2,"0") + ":" +
-                String(s).padStart(2,"0");
-
-            if(remain > 0){{
-                remain--;
-            }}
-        }}
-
-        updateTimer();
-        setInterval(updateTimer,1000);
-        </script>
         """,
-        height=70,
+        unsafe_allow_html=True
     )
+
+    if remaining <= 0:
+        st.error("⏰ 시험 시간이 종료되었습니다.")
+        grade_exam()
+
+
+show_timer()
     
 # -------------------------
 # 진행률
