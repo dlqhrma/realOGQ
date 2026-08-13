@@ -173,8 +173,10 @@ if not st.session_state.exam_started:
                     difficulty="랜덤",
                     count=count
                 )
-            except Exception:
-                st.error("AI 문제 생성에 실패했습니다. 잠시 후 다시 시도해주세요.")
+                st.code(result)
+            except Exception as e:
+                st.error(f"AI 문제 생성 실패: {e}")
+                st.exception(e)
                 st.stop()
         # -------------------------
         # AI 결과 파싱
