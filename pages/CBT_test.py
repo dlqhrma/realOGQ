@@ -173,7 +173,6 @@ if not st.session_state.exam_started:
                     difficulty="랜덤",
                     count=count
                 )
-                st.code(result)
             except Exception as e:
                 st.error(f"AI 문제 생성 실패: {e}")
                 st.exception(e)
