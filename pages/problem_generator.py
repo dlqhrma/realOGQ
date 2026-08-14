@@ -74,6 +74,7 @@ if st.button("🤖 문제 생성", use_container_width=True):
             st.error("AI 문제 생성을 실패했습니다. 잠시 후 다시 시도해주세요.")
             st.stop()
             
+    st.session_state.generated_problems = result           
     st.session_state.problem_list = re.split(
     r"(?=### 문제)",
     result
@@ -165,7 +166,20 @@ if st.session_state.generated_problems:
                 st.session_state.score += 1
             else:
                 st.error("오답입니다.")
-            
+
+
+    # -------------------------
+    # 정답 확인 후
+    # -------------------------
+
+    if st.session_state.show_result:
+
+        st.markdown("### 정답")
+        st.write(answer)
+
+        # AI 해설은 버튼을 눌렀을 때만 생성
+        if st.button("🤖 AI 해설 생성", use_container_width=True):
+
             with st.spinner("AI가 해설을 생성하는 중입니다..."):
 
                 try:
@@ -178,66 +192,83 @@ if st.session_state.generated_problems:
 
                 except Exception:
                     st.session_state.ai_explanation = (
-                        "AI 해설을 생성하지 못했습니다.\n"
-                        "잠시 후 다시 시도해주세요."
+                        "AI 해설을 생성하지 못했습니다."
                     )
-                
-    if st.session_state.show_result:
 
-        st.markdown("### 정답")
-        st.write(answer)
-        
-        st.markdown(st.session_state.ai_explanation)
-    
-        if st.session_state.current_index < len(st.session_state.problem_list) - 1:
+        # 해설이 생성된 경우에만 표시
+        if st.session_state.ai_explanation:
+            st.markdown("### 🤖 AI 해설")
+            st.markdown(st.session_state.ai_explanation)
 
-            if st.button("다음 문제"):
 
-                st.session_state.current_index += 1
+    # -------------------------
+    # 다음 문제
+    # -------------------------
+
+    if (
+        st.session_state.show_result
+        and st.session_state.current_index
+        < len(st.session_state.problem_list) - 1
+    ):
+
+        if st.button("다음 문제 ➡", use_container_width=True):
+
+            st.session_state.current_index += 1
+            st.session_state.show_result = False
+            st.session_state.answered = False
+            st.session_state.ai_explanation = ""
+
+            st.rerun()
+
+
+    # -------------------------
+    # 마지막 문제
+    # -------------------------
+
+    if (
+        st.session_state.show_result
+        and st.session_state.current_index
+        == len(st.session_state.problem_list) - 1
+    ):
+
+        st.success("모든 문제를 완료했습니다!")
+
+        total = len(st.session_state.problem_list)
+        correct = st.session_state.score
+        wrong = total - correct
+        accuracy = (correct / total) * 100
+
+        st.write(f"총 문제 : {total}")
+        st.write(f"정답 : {correct}")
+        st.write(f"오답 : {wrong}")
+        st.write(f"정답률 : {accuracy:.1f}%")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+
+            if st.button("다시 문제 생성", use_container_width=True):
+
+                st.session_state.generated_problems = ""
+                st.session_state.problem_list = []
+                st.session_state.current_index = 0
+                st.session_state.score = 0
                 st.session_state.show_result = False
                 st.session_state.answered = False
                 st.session_state.ai_explanation = ""
-                
+
                 st.rerun()
 
-        else:
+        with col2:
 
-            st.success("모든 문제를 완료했습니다!")
+            if st.button("🏠 Home", use_container_width=True):
 
-            total = len(st.session_state.problem_list)
-            correct = st.session_state.score
-            wrong = total - correct
-            accuracy = (correct / total) * 100
+                st.session_state.generated_problems = ""
+                st.session_state.problem_list = []
+                st.session_state.current_index = 0
+                st.session_state.score = 0
+                st.session_state.show_result = False
+                st.session_state.answered = False
+                st.session_state.ai_explanation = ""
 
-            st.write(f"총 문제 : {total}")
-            st.write(f"정답 : {correct}")
-            st.write(f"오답 : {wrong}")
-            st.write(f"정답률 : {accuracy:.1f}%")
-        
-            col1, col2 = st.columns(2)
-
-            with col1:
-                if st.button("다시 문제 생성", use_container_width=True):
-
-                    st.session_state.generated_problems = ""
-                    st.session_state.problem_list = []
-                    st.session_state.current_index = 0
-                    st.session_state.score = 0
-                    st.session_state.show_result = False
-                    st.session_state.answered = False
-                    st.session_state.ai_explanation = ""
-
-                    st.rerun()
-
-            with col2:
-                if st.button("🏠 Home", use_container_width=True):
-
-                    st.session_state.generated_problems = ""
-                    st.session_state.problem_list = []
-                    st.session_state.current_index = 0
-                    st.session_state.score = 0
-                    st.session_state.show_result = False
-                    st.session_state.answered = False
-                    st.session_state.ai_explanation = ""
-
-                    st.switch_page("pages/home.py")
+                st.switch_page("pages/home.py")
