@@ -63,6 +63,7 @@ if "user_id" in st.session_state:
         cbt,
         note,
         analysis,
+        result,
     ])
 
 else:
