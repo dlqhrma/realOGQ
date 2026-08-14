@@ -47,12 +47,14 @@ signup = st.Page(
 
 result = st.Page(
     "pages/result.py",
-    title="시험 결과"
+    title="시험 결과",
+    visibility="hidden"
 )
 
 review = st.Page(
     "pages/wrong_review.py",
-    title="오답 다시풀기"
+    title="오답 다시풀기",
+    visibility="hidden"
 )
 
 if "user_id" in st.session_state:
