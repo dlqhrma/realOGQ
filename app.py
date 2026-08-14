@@ -57,21 +57,31 @@ review = st.Page(
 
 if "user_id" in st.session_state:
 
-    pg = st.navigation([
-        home,
-        problem,
-        cbt,
-        note,
-        analysis,
-        result,
-        review,
-    ])
-
+    pg = st.navigation(
+        [
+            home,
+            problem,
+            cbt,
+            note,
+            analysis,
+            result,
+            review,
+        ],
+        position="hidden"
+    )
+    
+    with st.sidebar:
+        st.page_link(home, label="홈", icon="🏠")
+        st.page_link(problem, label="AI 문제 생성", icon="📘")
+        st.page_link(cbt, label="CBT 시험", icon="📝")
+        st.page_link(note, label="오답노트", icon="📂")
+        st.page_link(analysis, label="학습분석", icon="📊")
 else:
 
     pg = st.navigation([
         login,
         signup,
     ])
+    
 
 pg.run()
