@@ -36,6 +36,67 @@ if "retry_index" not in st.session_state:
 
 idx = st.session_state.retry_index
 
+# -------------------------
+# 문제 번호 이동
+# -------------------------
+
+st.markdown("#### 문제 번호")
+
+# 현재 문제를 기준으로 20문제 단위 페이지 계산
+number_page = idx // 20
+
+# 20문제 단위 페이지 버튼
+if len(questions) > 20:
+
+    total_page = (len(questions) + 19) // 20
+
+    page_cols = st.columns(total_page)
+
+    for p in range(total_page):
+
+        start_num = p * 20 + 1
+        end_num = min((p + 1) * 20, len(questions))
+
+        with page_cols[p]:
+
+            if st.button(
+                f"{start_num}~{end_num}",
+                key=f"wrong_page_{p}",
+                use_container_width=True
+            ):
+                # 해당 페이지의 첫 번째 문제로 이동
+                st.session_state.retry_index = p * 20
+
+                st.session_state.pop("ai_result", None)
+                st.session_state.pop("similar_problem", None)
+
+                st.rerun()
+
+
+# 현재 페이지의 문제 번호만 표시
+start = number_page * 20
+end = min(start + 20, len(questions))
+
+cols = st.columns(5)
+
+for i in range(start, end):
+
+    with cols[(i - start) % 5]:
+
+        label = f"➡ {i + 1}" if i == idx else str(i + 1)
+
+        if st.button(
+            label,
+            key=f"wrong_move_{i}",
+            use_container_width=True
+        ):
+            st.session_state.retry_index = i
+
+            st.session_state.pop("ai_result", None)
+            st.session_state.pop("similar_problem", None)
+
+            st.rerun()
+
 (
     chapter,
     subcategory,
