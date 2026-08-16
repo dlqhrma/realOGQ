@@ -63,7 +63,7 @@ accuracy = get_chapter_accuracy(st.session_state.user_id)
 
 if accuracy:
 
-    for chapter, rate in accuracy[:3]:
+    for chapter, rate in accuracy[:4]:
 
         st.write(f"**{chapter}**")
 
