@@ -1261,6 +1261,52 @@ show_timer()
 
 
 
+
+### 네비게이션 기능 수정 과정
+
+**문제점**:
+기존에는 Streamlit의 기본 페이지 목록이 사이드바에 표시되어 `시험 결과`, `오답 다시풀기`처럼 사용자가 직접 이동할 필요가 없는 페이지까지 메뉴에 나타났다.
+또한 페이지 이름과 표시되는 메뉴를 원하는 형태로 관리하기 어려웠다.
+
+**수정한 내용**:
+페이지 이동을 하나의 네비게이션 구조로 관리하기 위해 기존 `app.py`의 페이지 설정을 수정하였다.
+`홈`, `AI 문제 생성`, `CBT 시험`, `오답노트`, `학습분석`을 사용자에게 보여주는 메뉴로 구성하고, `시험 결과`, `오답 다시풀기`는 내부 페이지 이동을 위해 네비게이션에 등록하되 사용자 메뉴에서는 표시하지 않도록 구성하였다.
+
+이 과정에서 **별도의 페이지 파일을 새로 만들지는 않고 기존 `app.py`를 수정**하였다.
+또한 기존 `result.py`, `wrong_review.py` 파일은 삭제하지 않고 `st.switch_page()`를 통한 내부 이동에 그대로 사용하였다.
+
+```python
+pg = st.navigation(
+    [
+        home,
+        problem,
+        cbt,
+        note,
+        analysis,
+        result,
+        review,
+    ],
+    position="hidden"
+)
+```
+
+사용자에게 보여줄 메뉴는 `st.page_link()`를 이용해 별도로 구성하였다.
+
+```python
+with st.sidebar:
+    st.page_link(home, label="홈", icon="🏠")
+    st.page_link(problem, label="AI 문제 생성", icon="📘")
+    st.page_link(cbt, label="CBT 시험", icon="📝")
+    st.page_link(note, label="오답노트", icon="📂")
+    st.page_link(analysis, label="학습분석", icon="📊")
+```
+
+**수정 결과**:
+사이드바에는 학습에 필요한 **5개의 주요 메뉴만 표시**되도록 개선하였다.
+`시험 결과`와 `오답 다시풀기`는 사이드바에서 숨겼지만, CBT 제출이나 오답노트를 통해 해당 페이지로 이동하는 기능은 그대로 유지하였다.
+
+
+
 ---
 
 # License
