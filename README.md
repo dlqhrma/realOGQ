@@ -1225,6 +1225,7 @@ pg.run()
 **수정한 코드**:
 기존에 여러 번 작성되어 있던 타이머 코드를 하나의 `show_timer()` 함수로 통합하고, `@st.fragment(run_every="1s")`를 사용하여 1초마다 타이머가 갱신되도록 수정하였다.
 
+```python
 @st.fragment(run_every="1s")
 def show_timer():
     if not st.session_state.exam_started:
@@ -1249,9 +1250,11 @@ def show_timer():
         grade_exam()
 
 show_timer()
+```
 
 **수정 결과**:
 타이머를 하나의 함수로 통합하여 중복 실행 문제를 줄였고, **1초마다 남은 시간이 갱신되도록 개선하였다.** 또한 시간이 `00:00`이 되면 `grade_exam()`을 호출하여 **시험이 자동으로 제출되도록 수정하였다.**
+
 
 
 ---
