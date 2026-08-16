@@ -131,16 +131,13 @@ def grade_exam():
 
     
     st.session_state.exam_started = False
+    st.session_state.exam_finished = True
+    st.session_state.grading = False
     st.session_state.exam_id = exam_id
-    
-    print(st.session_state.get("score"))
-    print(st.session_state.get("total_questions"))
-    
-    print(">>> result 페이지로 이동")
-    print("exam_started =", st.session_state.exam_started)
+    st.session_state.submit_confirm = False
+    st.session_state.unanswered = []
 
     st.switch_page("pages/result.py")
-    st.stop()
 
 if not st.session_state.exam_started:
 
@@ -174,8 +171,7 @@ if not st.session_state.exam_started:
                     count=count
                 )
             except Exception as e:
-                st.error(f"AI 문제 생성 실패: {e}")
-                st.exception(e)
+                st.error("⚠️ AI 문제 생성에 실패했습니다. 잠시 후 다시 시도해주세요.")
                 st.stop()
         # -------------------------
         # AI 결과 파싱
