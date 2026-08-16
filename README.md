@@ -1213,6 +1213,44 @@ pg.run()
 로그인에 성공하면 사용자 정보를 세션에 저장하고 홈 화면으로 이동하도록 개선하였다. 또한 로그인한 사용자만 CBT, 오답노트, 학습분석 등의 기능을 이용할 수 있도록 페이지 접근 구조를 구성하였다.
 
 
+
+### 타이머 수정 과정
+
+**문제점**:
+기존 타이머 코드는 같은 시간 계산과 화면 표시 코드가 여러 번 작성되어 있어 타이머가 중복 실행될 가능성이 있었고, 시험 시간이 끝났을 때 자동 제출하는 과정도 명확하게 관리하기 어려웠다.
+
+**수정한 코드**:
+기존에 여러 번 작성되어 있던 타이머 코드를 하나의 `show_timer()` 함수로 통합하고, `@st.fragment(run_every="1s")`를 사용하여 1초마다 타이머가 갱신되도록 수정하였다.
+
+@st.fragment(run_every="1s")
+def show_timer():
+    if not st.session_state.exam_started:
+        return
+
+    elapsed = int(time() - st.session_state.start_time)
+
+    remaining = max(
+        0,
+        st.session_state.time_limit - elapsed
+    )
+
+    minutes = remaining // 60
+    seconds = remaining % 60
+
+    st.markdown(
+        f"⏱ 남은 시간 : {minutes:02d}:{seconds:02d}"
+    )
+
+    if remaining <= 0:
+        st.error("⏰ 시험 시간이 종료되었습니다.")
+        grade_exam()
+
+show_timer()
+
+**수정 결과**:
+타이머를 하나의 함수로 통합하여 중복 실행 문제를 줄였고, **1초마다 남은 시간이 갱신되도록 개선하였다.** 또한 시간이 `00:00`이 되면 `grade_exam()`을 호출하여 **시험이 자동으로 제출되도록 수정하였다.**
+
+
 ---
 
 # License
