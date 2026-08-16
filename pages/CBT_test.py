@@ -316,6 +316,22 @@ if len(questions) == 0:
     st.stop()
 question = questions[current]
 
+def move_question(index):
+    st.session_state.current = index
+    st.session_state.number_page = index // 20
+
+
+def move_next():
+    current = st.session_state.current
+    st.session_state.current = current + 1
+    st.session_state.number_page = (current + 1) // 20
+
+
+def move_previous():
+    current = st.session_state.current
+    st.session_state.current = current - 1
+    st.session_state.number_page = (current - 1) // 20
+
 page = st.session_state.number_page
 
 start = page * 20
@@ -374,49 +390,55 @@ st.progress(progress)
 # 문제 번호 이동
 # -------------------------
 
-if len(questions) > 20:
+st.markdown("#### 문제 번호")
 
-    st.markdown("#### 문제 번호")
+total_page = (len(questions) + 19) // 20
 
-    total_page = (len(questions) + 19) // 20
+# 20문제 단위 페이지 선택
+page_cols = st.columns(total_page)
 
-    tabs = st.columns(total_page)
+for p in range(total_page):
+    start_num = p * 20 + 1
+    end_num = min((p + 1) * 20, len(questions))
 
-    for p in range(total_page):
+    with page_cols[p]:
+        st.button(
+            f"{start_num}~{end_num}",
+            key=f"page_{p}",
+            use_container_width=True,
+            on_click=lambda p=p: st.session_state.update(
+                number_page=p
+            )
+        )
 
-        start_num = p * 20 + 1
-        end_num = min((p + 1) * 20, len(questions))
+# 현재 페이지의 문제 번호
+start = st.session_state.number_page * 20
+end = min(start + 20, len(questions))
 
-        with tabs[p]:
-
-            if st.button(
-                f"{start_num}~{end_num}",
-                key=f"page_{p}",
-                use_container_width=True,
-            ):
-                st.session_state.number_page = p
-                st.rerun()
-
-cols = st.columns(5)
+number_cols = st.columns(5)
 
 for i in range(start, end):
 
-    with cols[i % 5]:
+    with number_cols[(i - start) % 5]:
 
-        if i == current:
-            label = f"➡ {i+1}"
+        if i == st.session_state.current:
+            label = f"➡ {i + 1}"
         else:
-            label = f"{i+1}"
+            label = f"{i + 1}"
 
         if st.session_state.answers[i] is not None:
             label += " ✅"
-            
+
         if st.session_state.marked[i]:
             label += " ⭐"
 
-        if st.button(label, key=f"move_{i}", use_container_width=True):
-            st.session_state.current = i
-            st.rerun()
+        st.button(
+            label,
+            key=f"move_{i}",
+            use_container_width=True,
+            on_click=move_question,
+            args=(i,)
+        )
             
 
 
@@ -456,9 +478,11 @@ with col1:
 
     if current > 0:
 
-        if st.button("⬅ 이전 문제", use_container_width=True):
-            st.session_state.current -= 1
-            st.rerun()
+        st.button(
+            "⬅ 이전 문제",
+            use_container_width=True,
+            on_click=move_previous
+        )
 
 # -------------------------
 # 다음 / 제출
@@ -468,14 +492,11 @@ with col2:
 
     if current < len(questions)-1:
 
-        if st.button("다음 문제 ➡", use_container_width=True):
-
-            if st.session_state.answers[current] is None:
-                st.warning("답을 선택해주세요.")
-            else:
-                st.session_state.current += 1
-                st.rerun()
-
+        st.button(
+            "다음 문제 ➡",
+            use_container_width=True,
+            on_click=move_next
+        )
     else:
 
         if st.button(
