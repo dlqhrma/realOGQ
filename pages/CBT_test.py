@@ -44,16 +44,16 @@ def grade_exam():
     if st.session_state.get("exam_finished", False):
         return
 
-    st.session_state.exam_finished = True
-
-
     if st.session_state.grading:
         return
 
+    # 채점 시작
     st.session_state.grading = True
 
-    # 가장 먼저 시험 종료 처리
+    # CBT 즉시 종료
     st.session_state.exam_started = False
+    st.session_state.time_expired = True
+    st.session_state.exam_finished = True
 
 
     score = 0

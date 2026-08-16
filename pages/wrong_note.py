@@ -24,14 +24,17 @@ history = get_exam_history_for_note(
 
 st.subheader("시험 기록")
 
-for exam_id, exam_date, score, total, wrong_count in history:
+total_exams = len(history)
+
+for index, (exam_id, exam_date, score, total, wrong_count) in enumerate(history):
+    exam_number = total_exams - index
 
     with st.container():
 
         col1, col2 = st.columns([4, 1])
 
         with col1:
-            st.write(f"📄 CBT #{exam_id}")
+            st.write(f"📄 CBT #{exam_number}")
 
             st.caption(f"📝 {total}문제 CBT")
 
