@@ -134,6 +134,20 @@ def grade_exam():
     st.session_state.exam_finished = True
     st.session_state.grading = False
     st.session_state.exam_id = exam_id
+
+    # CBT 시험 상태 완전 초기화
+    st.session_state.questions = []
+    st.session_state.answers = []
+    st.session_state.marked = []
+    st.session_state.current = 0
+    st.session_state.number_page = 0
+
+    # 타이머 초기화
+    st.session_state.start_time = None
+    st.session_state.time_limit = 0
+    st.session_state.time_expired = False
+
+    # 제출 상태 초기화
     st.session_state.submit_confirm = False
     st.session_state.unanswered = []
 
