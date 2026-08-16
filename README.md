@@ -1170,6 +1170,47 @@ AI 해설
 - 한국산업안전보건공단(KOSHA)
   - 산업안전보건 및 위험 예방 기준 참고
 
+---
+# 보충 작업
+
+
+### 로그인 기능 수정 과정
+
+**문제점**
+기존에는 로그인 기능이 제대로 연결되지 않아 사용자의 아이디와 비밀번호를 이용해 계정을 확인하고, 로그인 상태를 유지하는 과정이 부족했다.
+
+**수정한 코드**
+로그인 정보를 데이터베이스에서 확인하고, 로그인에 성공하면 `st.session_state`에 사용자 정보를 저장하도록 수정하였다.
+
+if login_success:
+    st.session_state.user_id = user_id
+    st.session_state.logged_in = True
+    st.switch_page("pages/home.py")
+
+
+또한 `app.py`에서 로그인 여부에 따라 접근할 수 있는 페이지를 구분하도록 구성하였다.
+
+if "user_id" in st.session_state:
+    pg = st.navigation([
+        home,
+        problem,
+        cbt,
+        note,
+        analysis,
+        result,
+        review,
+    ])
+else:
+    pg = st.navigation([
+        login,
+        signup,
+    ])
+
+pg.run()
+
+
+**수정 결과**
+로그인에 성공하면 사용자 정보를 세션에 저장하고 홈 화면으로 이동하도록 개선하였다. 또한 로그인한 사용자만 CBT, 오답노트, 학습분석 등의 기능을 이용할 수 있도록 페이지 접근 구조를 구성하였다.
 
 
 ---
