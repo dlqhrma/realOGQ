@@ -261,8 +261,12 @@ if not st.session_state.exam_started:
             except Exception:
                 continue
             
-        if len(parsed_questions) == 0:
-            st.error("AI 문제를 생성하지 못했습니다. 다시 시도해주세요.")
+        if len(parsed_questions) != count:
+            st.error(
+                f"⚠️ 문제 생성이 완료되지 않았습니다. "
+                f"(요청: {count}문제 / 생성: {len(parsed_questions)}문제)"
+            )
+            st.info("시험을 시작하지 않고 다시 문제를 생성해주세요.")
             st.stop()
         
         st.session_state.questions = parsed_questions
