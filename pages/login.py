@@ -1,5 +1,5 @@
 import streamlit as st
-from database import login_user
+from supabase_db import login_user
 
 st.set_page_config(
     page_title="로그인",

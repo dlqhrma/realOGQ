@@ -1,5 +1,5 @@
 import streamlit as st
-from database import create_user
+from supabase_db import create_user
 
 st.set_page_config(
     page_title="회원가입",
