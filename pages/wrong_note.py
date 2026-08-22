@@ -1,5 +1,5 @@
 import streamlit as st
-from database import get_exam_history_for_note
+from supabase_db import get_exam_history_for_note
 
 st.set_page_config(
     page_title="오답노트",

@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from database import (
+from supabase_db import (
     get_exam_history,
     get_chapter_statistics,
     get_chapter_accuracy
