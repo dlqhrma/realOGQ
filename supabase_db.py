@@ -130,6 +130,113 @@ def get_exam_history(user_id):
         print("시험 기록 조회 오류:", repr(e))
         return []
     
+def get_chapter_accuracy(user_id):
+    try:
+        response = (
+            supabase
+            .table("question_history")
+            .select("chapter, is_correct")
+            .eq("user_id", user_id)
+            .execute()
+        )
+
+        chapter_data = {}
+
+        for row in response.data:
+            chapter = row["chapter"]
+            is_correct = row["is_correct"]
+
+            if chapter not in chapter_data:
+                chapter_data[chapter] = []
+
+            chapter_data[chapter].append(is_correct)
+
+        result = []
+
+        for chapter, answers in chapter_data.items():
+            accuracy = sum(answers) / len(answers) * 100
+            result.append((chapter, round(accuracy, 1)))
+
+        return result
+
+    except Exception as e:
+        print("단원 정답률 조회 오류:", repr(e))
+        return []
+    
+def save_wrong_answer(
+    user_id,
+    exam_id,
+    question_id,
+    chapter,
+    subcategory,
+    concept,
+    difficulty,
+    question,
+    choices,
+    my_answer,
+    correct_answer,
+    explanation,
+    wrong_date,
+    exam_count
+):
+    try:
+        response = (
+            supabase
+            .table("wrong_answers")
+            .insert({
+                "user_id": user_id,
+                "exam_id": exam_id,
+                "question_id": question_id,
+                "chapter": chapter,
+                "subcategory": subcategory,
+                "concept": concept,
+                "difficulty": difficulty,
+                "question": question,
+                "choices": str(choices),
+                "my_answer": my_answer,
+                "correct_answer": correct_answer,
+                "explanation": explanation,
+                "wrong_date": wrong_date,
+                "exam_count": exam_count
+            })
+            .execute()
+        )
+
+        print("오답 저장:", response)
+
+        return len(response.data) > 0
+
+    except Exception as e:
+        print("오답 저장 오류:", repr(e))
+        return False
+    
+def save_question_history(
+    user_id,
+    exam_id,
+    chapter,
+    is_correct
+):
+    try:
+        response = (
+            supabase
+            .table("question_history")
+            .insert({
+                "user_id": user_id,
+                "exam_id": exam_id,
+                "chapter": chapter,
+                "is_correct": is_correct
+            })
+            .execute()
+        )
+
+        print("문제 풀이 기록 저장:", response)
+
+        return len(response.data) > 0
+
+    except Exception as e:
+        print("문제 풀이 기록 저장 오류:", repr(e))
+        return False    
+    
 if __name__ == "__main__":
     print("연결 테스트:", test_connection())
 
