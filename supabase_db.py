@@ -84,17 +84,30 @@ def test_connection():
 # -------------------------
 # 시험 기록 저장
 # -------------------------
-def save_exam(user_id, score, total_questions, duration):
+def save_exam(
+    user_id,
+    exam_date,
+    score,
+    total_questions,
+    duration
+):
+    
+    
     try:
+        data = {
+            "user_id": user_id,
+            "score": score,
+            "total_questions": total_questions,
+            "duration": duration
+        }
+
+        if exam_date is not None:
+            data["exam_date"] = exam_date
+
         response = (
             supabase
             .table("exams")
-            .insert({
-                "user_id": user_id,
-                "score": score,
-                "total_questions": total_questions,
-                "duration": duration
-            })
+            .insert(data)
             .execute()
         )
 
@@ -107,7 +120,7 @@ def save_exam(user_id, score, total_questions, duration):
 
     except Exception as e:
         print("시험 기록 저장 오류:", repr(e))
-        return None
+        return None  
 
 
 # -------------------------
@@ -235,6 +248,39 @@ def save_question_history(
 
     except Exception as e:
         print("문제 풀이 기록 저장 오류:", repr(e))
+        return False    
+    
+def save_question_history_batch(records):
+    try:
+        response = (
+            supabase
+            .table("question_history")
+            .insert(records)
+            .execute()
+        )
+
+        print("문제 풀이 기록 일괄 저장:", response)
+        return len(response.data) == len(records)
+
+    except Exception as e:
+        print("문제 풀이 기록 일괄 저장 오류:", repr(e))
+        return False
+
+
+def save_wrong_answer_batch(records):
+    try:
+        response = (
+            supabase
+            .table("wrong_answers")
+            .insert(records)
+            .execute()
+        )
+
+        print("오답 일괄 저장:", response)
+        return len(response.data) == len(records)
+
+    except Exception as e:
+        print("오답 일괄 저장 오류:", repr(e))
         return False    
     
 if __name__ == "__main__":

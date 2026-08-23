@@ -1,5 +1,5 @@
 import streamlit as st
-from supabase_db import (
+from database import (
     save_exam,
     save_wrong_answer,
     save_question_history
