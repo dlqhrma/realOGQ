@@ -1,5 +1,5 @@
 import streamlit as st
-from supabase_db import get_chapter_accuracy
+from database import get_chapter_accuracy
 import uuid
 
 if "user_id" not in st.session_state:

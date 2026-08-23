@@ -1,7 +1,7 @@
 import streamlit as st
 import ast
 import re
-from supabase_db import get_wrong_questions
+from database import get_wrong_questions
 from ai_service import (
     generate_ai_explanation,
     generate_similar_problem
