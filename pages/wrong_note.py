@@ -1,5 +1,6 @@
 import streamlit as st
 from database import get_exam_history_for_note
+from supabase_db import log_activity
 
 st.set_page_config(
     page_title="오답노트",
@@ -19,6 +20,13 @@ with col2:
 history = get_exam_history_for_note(
     st.session_state.user_id
 )
+
+if history and not st.session_state.get("wrong_note_logged", False):
+    log_activity(
+        st.session_state.user_id,
+        "WRONG_NOTE"
+    )
+    st.session_state.wrong_note_logged = True
 
 
 

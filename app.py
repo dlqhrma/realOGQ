@@ -55,6 +55,11 @@ review = st.Page(
     title="오답 다시풀기"
 )
 
+stats = st.Page(
+    "pages/admin_stats.py",
+    title="통계"
+)
+
 if "user_id" in st.session_state:
 
     pg = st.navigation(
@@ -66,6 +71,7 @@ if "user_id" in st.session_state:
             analysis,
             result,
             review,
+            stats,
         ],
         position="hidden"
     )
@@ -76,6 +82,7 @@ if "user_id" in st.session_state:
         st.page_link(cbt, label="CBT 시험", icon="📝")
         st.page_link(note, label="오답노트", icon="📂")
         st.page_link(analysis, label="학습분석", icon="📊")
+        st.page_link(stats, label="학습", icon="📊")
 else:
 
     pg = st.navigation([
