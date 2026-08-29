@@ -2,6 +2,11 @@ import os
 from dotenv import load_dotenv
 from supabase import create_client, Client
 
+
+# =========================================================
+# Supabase 연결
+# =========================================================
+
 load_dotenv()
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
@@ -16,9 +21,10 @@ supabase: Client = create_client(
 )
 
 
-# -------------------------
+# =========================================================
 # 회원가입
-# -------------------------
+# =========================================================
+
 def create_user(username, password):
     try:
         response = (
@@ -39,9 +45,10 @@ def create_user(username, password):
         return False
 
 
-# -------------------------
+# =========================================================
 # 로그인
-# -------------------------
+# =========================================================
+
 def login_user(username, password):
     try:
         response = (
@@ -66,235 +73,57 @@ def login_user(username, password):
         return None
 
 
-# -------------------------
+# =========================================================
 # 연결 테스트
-# -------------------------
+# =========================================================
+
 def test_connection():
-    response = (
-        supabase
-        .table("users")
-        .select("id")
-        .limit(1)
-        .execute()
-    )
-
-    return response
-
-    
-# -------------------------
-# 시험 기록 저장
-# -------------------------
-def save_exam(
-    user_id,
-    exam_date,
-    score,
-    total_questions,
-    duration
-):
-    
-    
     try:
-        data = {
-            "user_id": user_id,
-            "score": score,
-            "total_questions": total_questions,
-            "duration": duration
-        }
-
-        if exam_date is not None:
-            data["exam_date"] = exam_date
-
         response = (
             supabase
-            .table("exams")
-            .insert(data)
+            .table("users")
+            .select("id")
+            .limit(1)
             .execute()
         )
 
-        print("시험 기록 저장:", response)
+        return response
 
-        if response.data:
-            return response.data[0]["id"]
-
+    except Exception as e:
+        print("Supabase 연결 오류:", repr(e))
         return None
 
-    except Exception as e:
-        print("시험 기록 저장 오류:", repr(e))
-        return None  
 
+# =========================================================
+# 이용자 활동 기록
+# =========================================================
 
-# -------------------------
-# 시험 기록 조회
-# -------------------------
-def get_exam_history(user_id):
+def log_activity(user_id, activity_type):
     try:
         response = (
             supabase
-            .table("exams")
-            .select("*")
-            .eq("user_id", user_id)
-            .order("exam_date", desc=True)
-            .execute()
-        )
-
-        return response.data
-
-    except Exception as e:
-        print("시험 기록 조회 오류:", repr(e))
-        return []
-    
-def get_chapter_accuracy(user_id):
-    try:
-        response = (
-            supabase
-            .table("question_history")
-            .select("chapter, is_correct")
-            .eq("user_id", user_id)
-            .execute()
-        )
-
-        chapter_data = {}
-
-        for row in response.data:
-            chapter = row["chapter"]
-            is_correct = row["is_correct"]
-
-            if chapter not in chapter_data:
-                chapter_data[chapter] = []
-
-            chapter_data[chapter].append(is_correct)
-
-        result = []
-
-        for chapter, answers in chapter_data.items():
-            accuracy = sum(answers) / len(answers) * 100
-            result.append((chapter, round(accuracy, 1)))
-
-        return result
-
-    except Exception as e:
-        print("단원 정답률 조회 오류:", repr(e))
-        return []
-    
-def save_wrong_answer(
-    user_id,
-    exam_id,
-    question_id,
-    chapter,
-    subcategory,
-    concept,
-    difficulty,
-    question,
-    choices,
-    my_answer,
-    correct_answer,
-    explanation,
-    wrong_date,
-    exam_count
-):
-    try:
-        response = (
-            supabase
-            .table("wrong_answers")
+            .table("activity_logs")
             .insert({
                 "user_id": user_id,
-                "exam_id": exam_id,
-                "question_id": question_id,
-                "chapter": chapter,
-                "subcategory": subcategory,
-                "concept": concept,
-                "difficulty": difficulty,
-                "question": question,
-                "choices": str(choices),
-                "my_answer": my_answer,
-                "correct_answer": correct_answer,
-                "explanation": explanation,
-                "wrong_date": wrong_date,
-                "exam_count": exam_count
+                "activity_type": activity_type
             })
             .execute()
         )
 
-        print("오답 저장:", response)
-
+        print("활동 기록:", response)
         return len(response.data) > 0
 
     except Exception as e:
-        print("오답 저장 오류:", repr(e))
-        return False
-    
-def save_question_history(
-    user_id,
-    exam_id,
-    chapter,
-    is_correct
-):
-    try:
-        response = (
-            supabase
-            .table("question_history")
-            .insert({
-                "user_id": user_id,
-                "exam_id": exam_id,
-                "chapter": chapter,
-                "is_correct": is_correct
-            })
-            .execute()
-        )
-
-        print("문제 풀이 기록 저장:", response)
-
-        return len(response.data) > 0
-
-    except Exception as e:
-        print("문제 풀이 기록 저장 오류:", repr(e))
-        return False    
-    
-def save_question_history_batch(records):
-    try:
-        response = (
-            supabase
-            .table("question_history")
-            .insert(records)
-            .execute()
-        )
-
-        print("문제 풀이 기록 일괄 저장:", response)
-        return len(response.data) == len(records)
-
-    except Exception as e:
-        print("문제 풀이 기록 일괄 저장 오류:", repr(e))
+        print("활동 기록 오류:", repr(e))
         return False
 
 
-def save_wrong_answer_batch(records):
-    try:
-        response = (
-            supabase
-            .table("wrong_answers")
-            .insert(records)
-            .execute()
-        )
+# =========================================================
+# 테스트
+# =========================================================
 
-        print("오답 일괄 저장:", response)
-        return len(response.data) == len(records)
-
-    except Exception as e:
-        print("오답 일괄 저장 오류:", repr(e))
-        return False    
-    
 if __name__ == "__main__":
     print("연결 테스트:", test_connection())
 
-    print("시험 저장 테스트:")
-    exam_id = save_exam(
-        user_id=5,
-        score=15,
-        total_questions=20,
-        duration=600
-    )
-
-    print("생성된 시험 ID:", exam_id)
-
-    print("시험 기록 조회:")
-    print(get_exam_history(5))
+    print("활동 기록 테스트:")
+    print(log_activity(5, "TEST"))
