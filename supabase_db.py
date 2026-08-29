@@ -126,4 +126,3 @@ if __name__ == "__main__":
     print("연결 테스트:", test_connection())
 
     print("활동 기록 테스트:")
-    print(log_activity(5, "TEST"))
