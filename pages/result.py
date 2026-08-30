@@ -1,5 +1,4 @@
 import streamlit as st
-from supabase_db import log_activity
 
 st.set_page_config(
     page_title="시험 결과",
@@ -8,16 +7,6 @@ st.set_page_config(
 )
 
 st.title("📊 CBT 시험 결과")
-
-# CBT 활동 기록
-if not st.session_state.get("cbt_activity_logged", False):
-    success = log_activity(
-        st.session_state.user_id,
-        "CBT"
-    )
-
-    if success:
-        st.session_state.cbt_activity_logged = True
 
 
 
