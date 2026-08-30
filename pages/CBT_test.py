@@ -186,6 +186,7 @@ if not st.session_state.exam_started:
                 )
             except Exception as e:
                 st.error("⚠️ AI 문제 생성에 실패했습니다. 잠시 후 다시 시도해주세요.")
+                st.exception(e)
                 st.stop()
         # -------------------------
         # AI 결과 파싱
