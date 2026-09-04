@@ -4,6 +4,8 @@ from database import (
     save_wrong_answer,
     save_question_history
 )
+
+from supabase_db import log_activity
 from datetime import datetime
 from ai_service import generate_problems
 
@@ -93,6 +95,12 @@ def grade_exam():
         total_questions=len(questions),
         duration=duration
     )
+    
+    if exam_id is not None:
+        log_activity(
+            st.session_state.user_id,
+            "CBT"
+        )
     
     for i, q in enumerate(questions):
 

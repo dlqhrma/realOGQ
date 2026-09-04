@@ -44,7 +44,12 @@ for log in logs:
     user_id = log["user_id"]
     activity_type = log["activity_type"]
 
-    all_users.add(user_id)
+    if activity_type in [
+        "CBT",
+        "PROBLEM_GENERATION",
+        "WRONG_NOTE"
+    ]:
+        all_users.add(user_id)
 
     if activity_type == "CBT":
         cbt_users.add(user_id)

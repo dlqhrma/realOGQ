@@ -4,6 +4,9 @@ from ai_service import (
     generate_problems,
     generate_ai_explanation
 )
+from supabase_db import log_activity
+
+
 
 st.set_page_config(page_title="AI 문제 생성", page_icon="📘")
 
@@ -74,7 +77,11 @@ if st.button("🤖 문제 생성", use_container_width=True):
             st.error("AI 문제 생성을 실패했습니다. 잠시 후 다시 시도해주세요.")
             st.stop()
             
-    st.session_state.generated_problems = result           
+    st.session_state.generated_problems = result      
+    log_activity(
+        st.session_state.user_id,
+        "PROBLEM_GENERATION"
+    )     
     st.session_state.problem_list = re.split(
     r"(?=### 문제)",
     result
