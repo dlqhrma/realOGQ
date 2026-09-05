@@ -22,6 +22,7 @@ if st.button("로그인", use_container_width=True):
 
         if user:
             st.session_state.user_id = user[0]
+            st.session_state.is_admin = user[1]
             st.success("로그인 성공!")
             st.rerun()
 

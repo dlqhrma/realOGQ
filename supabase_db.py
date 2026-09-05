@@ -54,7 +54,7 @@ def login_user(username, password):
         response = (
             supabase
             .table("users")
-            .select("id")
+            .select("id, is_admin")
             .eq("username", username)
             .eq("password", password)
             .limit(1)
@@ -64,7 +64,12 @@ def login_user(username, password):
         print("로그인 응답:", response)
 
         if response.data:
-            return (response.data[0]["id"],)
+            user = response.data[0]
+
+            return (
+                user["id"],
+                user["is_admin"]
+            )
 
         return None
 

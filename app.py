@@ -35,6 +35,12 @@ analysis = st.Page(
     icon="📊"
 )
 
+stats = st.Page(
+    "pages/admin_stats.py",
+    title="이용자 통계",
+    icon="📊"
+)
+
 login = st.Page(
     "pages/login.py",
     title="로그인"
@@ -82,7 +88,13 @@ if "user_id" in st.session_state:
         st.page_link(cbt, label="CBT 시험", icon="📝")
         st.page_link(note, label="오답노트", icon="📂")
         st.page_link(analysis, label="학습분석", icon="📊")
-        st.page_link(stats, label="학습", icon="📊")
+        
+        if st.session_state.get("is_admin", False):
+            st.page_link(
+                stats,
+                label="이용자 통계",
+                icon="📊"
+            )
 else:
 
     pg = st.navigation([
