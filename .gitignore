@@ -1,8 +1,14 @@
-<<<<<<< HEAD
+# Environment / Secrets
 .env
+.env.*
+!.env.example
+
+# Python
 __pycache__/
 *.pyc
-=======
-# 환경 변수 파일
-.env
->>>>>>> main
+*.pyo
+*.pyd
+
+# IDE
+.vscode/
+.idea/
