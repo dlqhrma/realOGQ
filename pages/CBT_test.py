@@ -192,8 +192,9 @@ if not st.session_state.exam_started:
                     difficulty="랜덤",
                     count=count
                 )
-            except Exception:
-                st.error("⚠️ AI 서버가 일시적으로 혼잡합니다. 잠시 후 다시 시도해주세요.")
+            except Exception as e:
+                st.error("⚠️ AI 문제 생성에 실패했습니다.")
+                st.exception(e)
                 st.stop()
         # -------------------------
         # AI 결과 파싱
