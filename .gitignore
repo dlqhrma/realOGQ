@@ -1,19 +1,8 @@
-# Environment / Secrets
+<<<<<<< HEAD
 .env
-.env.*
-!.env.example
-
-# Python
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
-
-# Database
-*.db
-*.sqlite
-*.sqlite3
-
-# IDE
-.vscode/
-.idea/
+=======
+# 환경 변수 파일
+.env
+>>>>>>> main
