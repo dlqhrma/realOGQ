@@ -1,4 +1,8 @@
 import streamlit as st
+import os
+
+# SQLite DB 초기화
+exec(open("init_db.py", encoding="utf-8").read())
 
 st.set_page_config(
     page_title="AI 설비보전기능사 CBT Coach",
