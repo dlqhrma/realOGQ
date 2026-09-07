@@ -12,10 +12,6 @@ client = genai.Client(
     api_key=os.getenv("GEMINI_API_KEY")
 )
 
-key = os.getenv("GEMINI_API_KEY")
-
-print("GEMINI_API_KEY 존재:", bool(key))
-print("GEMINI_API_KEY 길이:", len(key) if key else 0)
 
 def load_prompt(filename):
     with open(f"prompts/{filename}", "r", encoding="utf-8") as f:
