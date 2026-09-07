@@ -73,9 +73,10 @@ if st.button("🤖 문제 생성", use_container_width=True):
                 difficulty,
                 count
             )
-        except Exception:
-            st.error("AI 문제 생성을 실패했습니다. 잠시 후 다시 시도해주세요.")
-            st.stop()
+        except Exception as e:
+                    st.error("⚠️ AI 문제 생성에 실패했습니다.")
+                    st.exception(e)
+                    st.stop()
             
     st.session_state.generated_problems = result      
     log_activity(
