@@ -1,19 +1,18 @@
 import streamlit as st
-from ai_service import generate_problems
+from ai_service import load_prompt, load_knowledge
 
-st.title("실제 문제 생성 테스트")
+st.title("프롬프트 크기 테스트")
 
-if st.button("실제 문제 생성 테스트"):
-    try:
-        result = generate_problems(
-            chapter="전체",
-            difficulty="랜덤",
-            count=1
-        )
+system_prompt = load_prompt("system_prompt.txt")
+problem_prompt = load_prompt("problem_prompt.txt")
+output_format = load_prompt("output_format.txt")
+knowledge = load_knowledge()
 
-        st.success("실제 generate_problems 성공!")
-        st.write(result)
+st.write("system_prompt:", len(system_prompt), "문자")
+st.write("problem_prompt:", len(problem_prompt), "문자")
+st.write("output_format:", len(output_format), "문자")
+st.write("Knowledge:", len(knowledge), "문자")
 
-    except Exception as e:
-        st.error("실제 generate_problems 실패")
-        st.exception(e)
+total = len(system_prompt) + len(problem_prompt) + len(output_format) + len(knowledge)
+
+st.write("총 문자 수:", total)
