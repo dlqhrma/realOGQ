@@ -1,4 +1,3 @@
-
 from google import genai
 from dotenv import load_dotenv
 import os
@@ -13,14 +12,58 @@ client = genai.Client(
 )
 
 
+# =========================================================
+# 프롬프트 불러오기
+# =========================================================
+
 def load_prompt(filename):
     with open(f"prompts/{filename}", "r", encoding="utf-8") as f:
         return f.read()
 
-def load_knowledge():
-    with open("Data/Knowledge.txt", "r", encoding="utf-8") as f:
-        return f.read()
 
+# =========================================================
+# Knowledge 불러오기
+# =========================================================
+
+def load_knowledge(chapter=None):
+    """
+    Knowledge.txt에서 필요한 대단원만 불러온다.
+
+    chapter가 아래 중 하나이면 전체 Knowledge를 반환한다.
+    - None
+    - 전체
+    - 랜덤
+
+    그 외에는 CHAPTER_START / CHAPTER_END 경계를 이용하여
+    해당 대단원만 추출한다.
+    """
+
+    with open("Data/Knowledge.txt", "r", encoding="utf-8") as f:
+        knowledge = f.read()
+
+    # 전체 Knowledge가 필요한 경우
+    if chapter is None or chapter in ["전체", "랜덤"]:
+        return knowledge
+
+    start_marker = f"=== CHAPTER_START:{chapter} ==="
+    end_marker = f"=== CHAPTER_END:{chapter} ==="
+
+    start = knowledge.find(start_marker)
+    end = knowledge.find(end_marker)
+
+    # 경계를 찾지 못한 경우
+    # 기존 기능이 완전히 깨지는 것을 방지하기 위해 전체 Knowledge 사용
+    if start == -1 or end == -1:
+        return knowledge
+
+    start += len(start_marker)
+
+    return knowledge[start:end].strip()
+
+
+# =========================================================
+# AI 해설 생성
+# =========================================================
 
 def generate_ai_explanation(
     question,
@@ -32,7 +75,9 @@ def generate_ai_explanation(
     system_prompt = load_prompt("system_prompt.txt")
     answer_prompt = load_prompt("answer_prompt.txt")
     output_format = load_prompt("output_format.txt")
-    
+
+    # 현재 AI 해설 함수에는 chapter가 전달되지 않기 때문에
+    # 일단 전체 Knowledge 사용
     knowledge = load_knowledge()
 
     prompt = f"""
@@ -67,6 +112,12 @@ def generate_ai_explanation(
     )
 
     return response.text
+
+
+# =========================================================
+# 유사문제 생성
+# =========================================================
+
 def generate_similar_problem(
     question,
     choices,
@@ -79,8 +130,9 @@ def generate_similar_problem(
     system_prompt = load_prompt("system_prompt.txt")
     similar_prompt = load_prompt("similar_prompt.txt")
     output_format = load_prompt("output_format.txt")
-    
-    knowledge = load_knowledge()
+
+    # 해당 문제의 대단원 Knowledge만 사용
+    knowledge = load_knowledge(chapter)
 
     prompt = f"""
 {system_prompt}
@@ -121,9 +173,20 @@ def generate_similar_problem(
 
     return response.text
 
+
+# =========================================================
+# AI 응답에서 문제 블록 분리
+# =========================================================
+
 def extract_problem_blocks(text):
-    """AI 응답에서 문제 단위로 분리"""
-    blocks = re.split(r"(?=### 문제)", text)
+    """
+    AI 응답에서 문제 단위로 분리한다.
+    """
+
+    blocks = re.split(
+        r"(?=### 문제)",
+        text
+    )
 
     return [
         block.strip()
@@ -132,8 +195,15 @@ def extract_problem_blocks(text):
     ]
 
 
+# =========================================================
+# 문제 본문 추출
+# =========================================================
+
 def extract_question_text(problem):
-    """문제 본문만 추출"""
+    """
+    문제 블록에서 실제 문제 본문만 추출한다.
+    """
+
     match = re.search(
         r"### 문제\s*(.*?)### 보기",
         problem,
@@ -146,40 +216,75 @@ def extract_question_text(problem):
     return problem.strip()
 
 
+# =========================================================
+# 문제 비교용 정규화
+# =========================================================
+
 def normalize_question(text):
-    """문제 비교용 정규화"""
+    """
+    중복 문제 비교를 위해 문자열을 정규화한다.
+    """
+
     text = text.lower()
-    text = re.sub(r"\s+", "", text)
-    text = re.sub(r"[.,!?，。！？:：()（）\-]", "", text)
+
+    text = re.sub(
+        r"\s+",
+        "",
+        text
+    )
+
+    text = re.sub(
+        r"[.,!?，。！？:：()（）\-]",
+        "",
+        text
+    )
 
     return text
 
 
-def is_duplicate_question(new_question, existing_questions):
-    """완전히 같거나 매우 비슷한 문제인지 확인"""
+# =========================================================
+# 중복 문제 검사
+# =========================================================
 
-    new_normalized = normalize_question(new_question)
+def is_duplicate_question(
+    new_question,
+    existing_questions
+):
+    """
+    완전히 같거나 매우 비슷한 문제인지 검사한다.
+    """
+
+    new_normalized = normalize_question(
+        new_question
+    )
 
     for old_question in existing_questions:
 
-        old_normalized = normalize_question(old_question)
+        old_normalized = normalize_question(
+            old_question
+        )
 
-        # 완전히 같은 문제
+        # 완전히 동일한 문제
         if new_normalized == old_normalized:
             return True
 
-        # 거의 같은 문제
+        # 유사도 검사
         similarity = SequenceMatcher(
             None,
             new_normalized,
             old_normalized
         ).ratio()
 
+        # 92% 이상 유사하면 중복으로 처리
         if similarity >= 0.92:
             return True
 
     return False
 
+
+# =========================================================
+# 문제 생성
+# =========================================================
 
 def generate_problems(
     chapter,
@@ -187,15 +292,33 @@ def generate_problems(
     count
 ):
 
-    system_prompt = load_prompt("system_prompt.txt")
-    problem_prompt = load_prompt("problem_prompt.txt")
-    output_format = load_prompt("output_format.txt")
+    system_prompt = load_prompt(
+        "system_prompt.txt"
+    )
 
-    knowledge = load_knowledge()
+    problem_prompt = load_prompt(
+        "problem_prompt.txt"
+    )
 
-    # -------------------------
+    output_format = load_prompt(
+        "output_format.txt"
+    )
+
+    # -----------------------------------------------------
+    # 핵심 변경 부분
+    #
+    # 일반 문제 생성:
+    # 선택한 대단원 Knowledge만 사용
+    #
+    # CBT:
+    # chapter="전체"이므로 전체 Knowledge 사용
+    # -----------------------------------------------------
+
+    knowledge = load_knowledge(chapter)
+
+    # =====================================================
     # 1차 문제 생성
-    # -------------------------
+    # =====================================================
 
     prompt = f"""
 {system_prompt}
@@ -219,6 +342,7 @@ def generate_problems(
 {count}
 
 ## 중복 방지
+
 - 동일한 문제를 반복해서 생성하지 않는다.
 - 문제의 핵심 개념이 같더라도 질문의 조건과 상황이 다르면 출제할 수 있다.
 - 동일하거나 거의 동일한 문제는 생성하지 않는다.
@@ -229,36 +353,50 @@ def generate_problems(
         contents=prompt
     )
 
-    problem_blocks = extract_problem_blocks(response.text)
+    problem_blocks = extract_problem_blocks(
+        response.text
+    )
 
-    # -------------------------
+    # =====================================================
     # 2차 중복 검사
-    # -------------------------
+    # =====================================================
 
     unique_problems = []
     existing_questions = []
 
     for problem in problem_blocks:
 
-        question = extract_question_text(problem)
+        question = extract_question_text(
+            problem
+        )
 
         if not is_duplicate_question(
             question,
             existing_questions
         ):
-            unique_problems.append(problem)
-            existing_questions.append(question)
+            unique_problems.append(
+                problem
+            )
 
-    # -------------------------
+            existing_questions.append(
+                question
+            )
+
+    # =====================================================
     # 부족한 문제 재생성
-    # -------------------------
+    # =====================================================
 
     max_retry = 3
     retry_count = 0
 
-    while len(unique_problems) < count and retry_count < max_retry:
+    while (
+        len(unique_problems) < count
+        and retry_count < max_retry
+    ):
 
-        missing_count = count - len(unique_problems)
+        missing_count = (
+            count - len(unique_problems)
+        )
 
         existing_text = "\n".join(
             f"- {question}"
@@ -312,24 +450,34 @@ def generate_problems(
 
         for problem in retry_blocks:
 
-            question = extract_question_text(problem)
+            question = extract_question_text(
+                problem
+            )
 
             if not is_duplicate_question(
                 question,
                 existing_questions
             ):
-                unique_problems.append(problem)
-                existing_questions.append(question)
+
+                unique_problems.append(
+                    problem
+                )
+
+                existing_questions.append(
+                    question
+                )
 
                 if len(unique_problems) >= count:
                     break
 
         retry_count += 1
 
-    # -------------------------
+    # =====================================================
     # 최종 문제 수 제한
-    # -------------------------
+    # =====================================================
 
     unique_problems = unique_problems[:count]
 
-    return "\n\n".join(unique_problems)
+    return "\n\n".join(
+        unique_problems
+    )
