@@ -195,7 +195,8 @@ if st.session_state.generated_problems:
                         question=question,
                         choices=choices,
                         correct_answer=answer_index,
-                        user_answer=user_answer
+                        user_answer=user_answer,
+                        chapter=chapter
                     )
 
                 except Exception:

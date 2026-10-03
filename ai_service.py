@@ -78,7 +78,7 @@ def generate_ai_explanation(
 
     # 현재 AI 해설 함수에는 chapter가 전달되지 않기 때문에
     # 일단 전체 Knowledge 사용
-    knowledge = load_knowledge()
+    knowledge = load_knowledge(chapter)
 
     prompt = f"""
 {system_prompt}
