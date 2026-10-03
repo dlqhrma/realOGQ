@@ -69,15 +69,14 @@ def generate_ai_explanation(
     question,
     choices,
     correct_answer,
-    user_answer
+    user_answer,
+    chapter
 ):
 
     system_prompt = load_prompt("system_prompt.txt")
     answer_prompt = load_prompt("answer_prompt.txt")
     output_format = load_prompt("output_format.txt")
 
-    # 현재 AI 해설 함수에는 chapter가 전달되지 않기 때문에
-    # 일단 전체 Knowledge 사용
     knowledge = load_knowledge(chapter)
 
     prompt = f"""
@@ -104,6 +103,9 @@ def generate_ai_explanation(
 
 사용자 답안 :
 {user_answer}
+
+단원 :
+{chapter}
 """
 
     response = client.models.generate_content(
