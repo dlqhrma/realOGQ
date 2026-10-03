@@ -2,6 +2,7 @@ from google import genai
 from dotenv import load_dotenv
 import os
 import re
+import random
 from difflib import SequenceMatcher
 
 load_dotenv(override=True)
@@ -483,3 +484,151 @@ def generate_problems(
     return "\n\n".join(
         unique_problems
     )
+
+# =========================================================
+# CBT 문제 생성
+# =========================================================
+
+def generate_cbt_problems(count):
+
+    if count not in [20, 40, 60]:
+        raise ValueError("CBT 문제 수는 20, 40, 60 중 하나여야 합니다.")
+
+    system_prompt = load_prompt("system_prompt.txt")
+    cbt_prompt = load_prompt("cbt_prompt.txt")
+    output_format = load_prompt("output_format.txt")
+
+    # 전체 Knowledge 사용
+    knowledge = load_knowledge("전체")
+
+    # 실제 CBT에서 필요한 단원별 문제 수
+    count_per_chapter = count // 4
+
+    # 중복 제거를 대비해 단원별 1문제씩 추가 생성
+    request_per_chapter = count_per_chapter + 1
+    request_count = request_per_chapter * 4
+
+    chapters = [
+        "기계구동장치",
+        "공유압장치",
+        "전기전자장치",
+        "용접 및 안전관리"
+    ]
+
+    prompt = f"""
+{system_prompt}
+
+## 참고 자료
+{knowledge}
+
+{cbt_prompt}
+
+{output_format}
+
+## CBT 생성 정보
+
+최종 CBT 문제 수 :
+{count}
+
+이번 AI 생성 문제 수 :
+{request_count}
+
+## 이번 생성에서 반드시 지켜야 할 단원별 문제 수
+
+- 기계구동장치: {request_per_chapter}문제
+- 공유압장치: {request_per_chapter}문제
+- 전기전자장치: {request_per_chapter}문제
+- 용접 및 안전관리: {request_per_chapter}문제
+
+## 매우 중요한 규칙
+
+- 이번 응답에서는 정확히 {request_count}개의 문제를 생성한다.
+- 각 대단원에서 정확히 {request_per_chapter}문제씩 생성한다.
+- 각 문제는 반드시 해당 대단원의 Knowledge를 기반으로 생성한다.
+- 다른 대단원의 내용을 섞지 않는다.
+- ### 단원에는 반드시 위 4개 대단원 중 하나를 정확히 작성한다.
+- 난이도는 쉬움, 보통, 어려움을 적절히 혼합한다.
+- 동일하거나 거의 동일한 문제를 반복하지 않는다.
+- 정답 번호가 특정 위치에 과도하게 반복되지 않도록 한다.
+"""
+
+    response = client.models.generate_content(
+        model="gemini-3.6-flash",
+        contents=prompt
+    )
+
+    problem_blocks = extract_problem_blocks(response.text)
+
+    # 단원별 문제 저장
+    chapter_problems = {
+        chapter: []
+        for chapter in chapters
+    }
+
+    existing_questions = []
+
+    for problem in problem_blocks:
+
+        question = extract_question_text(problem)
+
+        # 중복 문제 제거
+        if is_duplicate_question(
+            question,
+            existing_questions
+        ):
+            continue
+
+        # 문제의 단원 추출
+        chapter_match = re.search(
+            r"### 단원\s*(.*?)\s*### 세부 분류",
+            problem,
+            re.S
+        )
+
+        # 단원 형식이 잘못된 문제는 제외
+        if not chapter_match:
+            continue
+
+        chapter = chapter_match.group(1).strip()
+
+        # 지정된 4개 대단원이 아니면 제외
+        if chapter not in chapter_problems:
+            continue
+
+        # 해당 단원이 이미 필요한 개수만큼 찼으면 제외
+        if len(chapter_problems[chapter]) >= count_per_chapter:
+            continue
+
+        chapter_problems[chapter].append(problem)
+        existing_questions.append(question)
+
+    # 각 단원이 정확한 문제 수를 확보했는지 확인
+    for chapter in chapters:
+
+        generated_count = len(chapter_problems[chapter])
+
+        if generated_count != count_per_chapter:
+            raise ValueError(
+                f"CBT 문제 생성 실패 - {chapter} "
+                f"(필요: {count_per_chapter}, 생성: {generated_count})"
+            )
+
+    # 최종 문제 합치기
+    final_problems = []
+
+    for chapter in chapters:
+        final_problems.extend(
+            chapter_problems[chapter]
+        )
+
+    # 최종 문제 수 확인
+    if len(final_problems) != count:
+        raise ValueError(
+            f"CBT 문제 생성 실패 "
+            f"(요청: {count}, 생성: {len(final_problems)})"
+        )
+
+    # 시험 문제 순서 랜덤화
+    random.shuffle(final_problems)
+
+    return "\n\n".join(final_problems)

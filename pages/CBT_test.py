@@ -7,7 +7,7 @@ from database import (
 
 from supabase_db import log_activity
 from datetime import datetime
-from ai_service import generate_problems
+from ai_service import generate_cbt_problems
 
 from time import time
 import streamlit.components.v1 as components
@@ -187,11 +187,7 @@ if not st.session_state.exam_started:
         with st.spinner("AI가 CBT 문제를 생성하는 중입니다..."):
 
             try:
-                result = generate_problems(
-                    chapter="전체",
-                    difficulty="랜덤",
-                    count=count
-                )
+                result = generate_cbt_problems(count)
             except Exception as e:
                 st.error("⚠️ AI 문제 생성에 실패했습니다.")
                 st.exception(e)
@@ -229,7 +225,7 @@ if not st.session_state.exam_started:
                         choices.append(line[2:].strip())
 
                 # 정답
-                answer_text = block.split("### 정답")[1].split("### 해설")[0].strip()
+                answer_text = block.split("### 정답")[1].split("### 단원")[0].strip()
 
                 answer_map = {
                     "①": 0,
@@ -240,17 +236,14 @@ if not st.session_state.exam_started:
 
                 answer_index = answer_map.get(answer_text, 0)
 
-                # 해설
-                explanation = block.split("### 해설")[1].split("### 단원")[0].strip()
-
-               # 단원
+                # 단원
                 chapter = block.split("### 단원")[1].split("### 세부 분류")[0].strip()
 
                 # 세부 분류
                 subcategory = block.split("### 세부 분류")[1].split("### 난이도")[0].strip()
 
                 # 난이도
-                difficulty = block.split("### 난이도")[1].split("### 시험 유형")[0].strip()
+                difficulty = block.split("### 난이도")[1].split("### 핵심 개념")[0].strip()
 
                 # 핵심 개념
                 concept = block.split("### 핵심 개념")[1].strip()
@@ -263,7 +256,7 @@ if not st.session_state.exam_started:
                     "question": question,
                     "choices": choices,
                     "answer_index": answer_index,
-                    "explanation": explanation,
+                    "explanation": "",
                     "concept": concept
                 })
 
