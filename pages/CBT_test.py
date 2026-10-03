@@ -159,6 +159,9 @@ def grade_exam():
     st.session_state.submit_confirm = False
     st.session_state.unanswered = []
 
+    st.session_state.submit_confirm = False
+    st.session_state.unanswered = []
+
     st.switch_page("pages/result.py")
 
 if not st.session_state.exam_started:
@@ -383,6 +386,9 @@ def show_timer():
 
 
 show_timer()
+# -------------------------
+# 진행률
+# -------------------------
     
 # -------------------------
 # 진행률
