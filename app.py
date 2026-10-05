@@ -104,8 +104,12 @@ if "user_id" in st.session_state:
             st.page_link(
                 stats,
                 label="이용자 통계",
-                icon="📊"
-            )
+                icon="📊")
+            st.page_link(
+                test,
+                label="test",
+                icon="📊")
+                
 else:
 
     pg = st.navigation([
