@@ -4,3 +4,4 @@ google-genai
 python-dotenv
 streamlit-js-eval
 supabase
+requests
