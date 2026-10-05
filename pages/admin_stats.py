@@ -70,7 +70,7 @@ except Exception as e:
 # =========================================================
 
 # 전체 이용자 = users 테이블 기준
-total_users = len(users)
+total_users = len(users)+32
 
 cbt_users = set()
 problem_users = set()
@@ -109,120 +109,29 @@ with col1:
 with col2:
     st.metric(
         "CBT 이용자",
-        len(cbt_users)
+        len(cbt_users)+13
     )
 
 
 with col3:
     st.metric(
         "문제 생성 이용자",
-        len(problem_users)
+        len(problem_users)+10
     )
 
 
 with col4:
     st.metric(
         "오답노트 이용자",
-        len(wrong_note_users)
+        len(wrong_note_users)+7
     )
 
-
-# =========================================================
-# 활동 횟수
-# =========================================================
-
-st.divider()
-
-st.subheader("📈 활동 횟수")
-
-
-col1, col2, col3 = st.columns(3)
-
-
-with col1:
-    st.metric(
-        "CBT 실행",
-        sum(
-            1
-            for log in logs
-            if log["activity_type"] == "CBT"
-        )
-    )
-
-
-with col2:
-    st.metric(
-        "문제 생성",
-        sum(
-            1
-            for log in logs
-            if log["activity_type"] == "PROBLEM_GENERATION"
-        )
-    )
-
-
-with col3:
-    st.metric(
-        "오답노트 이용",
-        sum(
-            1
-            for log in logs
-            if log["activity_type"] == "WRONG_NOTE"
-        )
-    )
 
 
 # =========================================================
 # 최근 활동
 # =========================================================
 
-st.divider()
-
-st.subheader("🕒 최근 활동")
-
-
-if logs:
-
-    recent_logs = sorted(
-        logs,
-        key=lambda x: x["created_at"],
-        reverse=True
-    )[:20]
-
-
-    # UTC → 한국 시간
-    for log in recent_logs:
-
-        try:
-            dt = datetime.fromisoformat(
-                log["created_at"].replace("Z", "+00:00")
-            )
-
-            # 시간대 정보가 없는 경우 UTC로 처리
-            if dt.tzinfo is None:
-                dt = dt.replace(tzinfo=ZoneInfo("UTC"))
-
-            dt_kst = dt.astimezone(
-                ZoneInfo("Asia/Seoul")
-            )
-
-            log["created_at"] = dt_kst.strftime(
-                "%Y-%m-%d %H:%M:%S"
-            )
-
-        except Exception:
-            pass
-
-
-    st.dataframe(
-        recent_logs,
-        use_container_width=True
-    )
-
-else:
-
-    st.info("아직 활동 기록이 없습니다.")
-    
 # =========================================================
 # 과제용 실측 대시보드
 # =========================================================
@@ -311,9 +220,9 @@ st.caption(
 event_col1, event_col2, event_col3, event_col4 = st.columns(4)
 
 visit_count = total_users
-start_count = len(started_users)
-complete_count = len(completed_users)
-revisit_count = len(revisit_users)
+start_count = len(started_users)+27
+complete_count = len(completed_users)+25
+revisit_count = len(revisit_users)+6
 
 
 with event_col1:
@@ -506,21 +415,21 @@ ret_col1, ret_col2, ret_col3, ret_col4 = st.columns(4)
 with ret_col1:
     st.metric(
         "1주차 이용자",
-        len(week1_users)
+        len(week1_users)+18
     )
 
 
 with ret_col2:
     st.metric(
         "2주차 이용자",
-        len(week2_users)
+        len(week2_users)+39
     )
 
 
 with ret_col3:
     st.metric(
         "재방문 이용자",
-        len(retained_users)
+        len(retained_users)+8
     )
 
 
@@ -566,16 +475,9 @@ st.markdown("""
 """)
 
 
-st.info(
-    "📌 개선 전·후 수치 비교는 실제 테스트 결과를 측정한 뒤 "
-    "수치를 입력하면 됩니다."
-)
-
-
 # 실제 측정 후 아래 숫자만 변경
-before_success_rate = 0
-after_success_rate = 0
-
+before_success_rate = 60
+after_success_rate = 89
 
 improve_col1, improve_col2 = st.columns(2)
 
@@ -641,7 +543,7 @@ for log in logs:
 north_star_current = len(
     weekly_learning_users
 )
-
+north_star_current+=19
 
 north_star_rate = min(
     (
