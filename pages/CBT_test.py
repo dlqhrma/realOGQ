@@ -7,11 +7,11 @@ from database import (
 
 from supabase_db import log_activity
 from datetime import datetime
-from ai_service import generate_cbt_problems
 
 from time import time
 import streamlit.components.v1 as components
 import re
+from ai_service import generate_cbt_problems, load_fallback_cbt
 
 st.set_page_config(page_title="CBT 시험", page_icon="📝", layout="wide")
 
@@ -176,7 +176,7 @@ if not st.session_state.exam_started:
     - 종합적인 실력을 점검하는 CBT
 
     **60문제**
-    - 현재 안정적인 AI 문제 생성을 위해 준비 중입니다.
+    - 실제 시험과 같은 문제 수로 종합적인 실력을 점검하는 CBT
     """)
 
     count = 20
@@ -194,7 +194,8 @@ if not st.session_state.exam_started:
             st.session_state.cbt_count = 40
 
     with col3:
-        st.button("🔒 60문제", disabled=True, use_container_width=True)
+        if st.button("60문제", use_container_width=True):
+            st.session_state.cbt_count = 60
 
     if "cbt_count" not in st.session_state:
         st.session_state.cbt_count = 20
@@ -202,17 +203,17 @@ if not st.session_state.exam_started:
     count = st.session_state.cbt_count
 
     st.caption(f"선택된 문제 수: {count}문제")
-    st.caption("🔒 60문제 CBT는 현재 준비 중입니다.")
+
     if st.button("🚀 시험 시작", use_container_width=True):
 
         with st.spinner("AI가 CBT 문제를 생성하는 중입니다..."):
 
             try:
                 result = generate_cbt_problems(count)
-            except Exception as e:
-                st.error("⚠️ AI 문제 생성에 실패했습니다.")
-                st.exception(e)
-                st.stop()
+
+            except Exception:
+
+                result = load_fallback_cbt(count)
         # -------------------------
         # AI 결과 파싱
         # -------------------------
@@ -264,7 +265,12 @@ if not st.session_state.exam_started:
                 subcategory = block.split("### 세부 분류")[1].split("### 난이도")[0].strip()
 
                 # 난이도
-                difficulty = block.split("### 난이도")[1].split("### 핵심 개념")[0].strip()
+                difficulty_text = block.split("### 난이도")[1]
+
+                if "### 시험 유형" in difficulty_text:
+                    difficulty = difficulty_text.split("### 시험 유형")[0].strip()
+                else:
+                    difficulty = difficulty_text.split("### 핵심 개념")[0].strip()
 
                 # 핵심 개념
                 concept = block.split("### 핵심 개념")[1].strip()

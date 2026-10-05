@@ -13,6 +13,18 @@ client = genai.Client(
     api_key=os.getenv("GEMINI_API_KEY")
 )
 
+def load_fallback_cbt(count):
+    fallback_files = [
+        f"Data/fallback_cbt_{count}_1.txt",
+        f"Data/fallback_cbt_{count}_2.txt",
+        f"Data/fallback_cbt_{count}_3.txt",
+    ]
+
+    filename = random.choice(fallback_files)
+
+    with open(filename, "r", encoding="utf-8") as f:
+        return f.read()
+
 def generate_with_retry(prompt, max_retries=2):
 
     for attempt in range(max_retries):
@@ -35,7 +47,6 @@ def generate_with_retry(prompt, max_retries=2):
 
             # 503일 때 1초만 기다렸다가 한 번 재시도
             time.sleep(1)
-
 
 # =========================================================
 # 프롬프트 불러오기
