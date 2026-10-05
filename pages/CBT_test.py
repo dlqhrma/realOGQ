@@ -172,19 +172,26 @@ if not st.session_state.exam_started:
     **20문제**
     - 핵심 개념을 빠르게 점검하는 연습용 CBT
 
-    **40문제**
-    - 실제 시험과 유사한 구성으로 종합 실력을 점검하는 CBT
-
-    **60문제**
-    - 실전 시험을 충분히 대비하기 위한 고난도 CBT
+    **40문제 / 60문제**
+    - 현재 안정적인 AI 문제 생성을 위해 준비 중입니다.
     """)
 
-    count = st.selectbox(
-        "문제 수",
-        [20, 40, 60],
-        index=0
-    )
+    count = 20
 
+    st.write("### 문제 수")
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.button("✓ 20문제", disabled=True, use_container_width=True)
+
+    with col2:
+        st.button("🔒 40문제", disabled=True, use_container_width=True)
+
+    with col3:
+        st.button("🔒 60문제", disabled=True, use_container_width=True)
+
+    st.caption("40/60문제 CBT는 현재 준비 중입니다.")
     if st.button("🚀 시험 시작", use_container_width=True):
 
         with st.spinner("AI가 CBT 문제를 생성하는 중입니다..."):
