@@ -13,8 +13,7 @@ client = genai.Client(
     api_key=os.getenv("GEMINI_API_KEY")
 )
 
-def generate_with_retry(prompt, max_retries=3):
-    wait_times = [2, 4, 8]
+def generate_with_retry(prompt, max_retries=2):
 
     for attempt in range(max_retries):
         try:
@@ -33,7 +32,9 @@ def generate_with_retry(prompt, max_retries=3):
             # 마지막 시도까지 실패
             if attempt == max_retries - 1:
                 raise e
-            time.sleep(wait_times[attempt])
+
+            # 503일 때 1초만 기다렸다가 한 번 재시도
+            time.sleep(1)
 
 
 # =========================================================
