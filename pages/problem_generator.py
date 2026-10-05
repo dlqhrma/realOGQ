@@ -36,7 +36,7 @@ difficulty = st.segmented_control(
 count = st.slider(
     "📝 문제 수",
     1,
-    10,
+    5,
     5
 )
 
