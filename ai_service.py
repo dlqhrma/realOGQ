@@ -19,7 +19,7 @@ def generate_with_retry(prompt, max_retries=3):
     for attempt in range(max_retries):
         try:
             return client.models.generate_content(
-                model="gemini-3.6-flash",
+                model="gemini-3.5-flash-lite",
                 contents=prompt
             )
 
