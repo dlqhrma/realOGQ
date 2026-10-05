@@ -135,7 +135,7 @@ if st.session_state.generated_problems:
 
     # 정답
     answer = re.search(
-        r"### 정답\s*(.*?)### 해설",
+        r"### 정답\s*(.*?)### 단원",
         text,
         re.S
     ).group(1).strip()

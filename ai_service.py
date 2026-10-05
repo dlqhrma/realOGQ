@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import os
 import re
 import random
+import time
 from difflib import SequenceMatcher
 
 load_dotenv(override=True)
@@ -11,6 +12,28 @@ load_dotenv(override=True)
 client = genai.Client(
     api_key=os.getenv("GEMINI_API_KEY")
 )
+
+def generate_with_retry(prompt, max_retries=3):
+    wait_times = [2, 4, 8]
+
+    for attempt in range(max_retries):
+        try:
+            return client.models.generate_content(
+                model="gemini-3.6-flash",
+                contents=prompt
+            )
+
+        except Exception as e:
+            error_text = str(e)
+
+            # 503 서버 과부하가 아니면 그대로 오류 발생
+            if "503" not in error_text and "UNAVAILABLE" not in error_text:
+                raise
+
+            # 마지막 시도까지 실패
+            if attempt == max_retries - 1:
+                raise e
+            time.sleep(wait_times[attempt])
 
 
 # =========================================================
@@ -109,10 +132,7 @@ def generate_ai_explanation(
 {chapter}
 """
 
-    response = client.models.generate_content(
-        model="gemini-3.6-flash",
-        contents=prompt
-    )
+    response = generate_with_retry(prompt)
 
     return response.text
 
@@ -169,10 +189,7 @@ def generate_similar_problem(
 {difficulty}
 """
 
-    response = client.models.generate_content(
-        model="gemini-3.6-flash",
-        contents=prompt
-    )
+    response = generate_with_retry(prompt)
 
     return response.text
 
@@ -351,10 +368,7 @@ def generate_problems(
 - 동일하거나 거의 동일한 문제는 생성하지 않는다.
 """
 
-    response = client.models.generate_content(
-        model="gemini-3.6-flash",
-        contents=prompt
-    )
+    response = generate_with_retry(prompt)
 
     problem_blocks = extract_problem_blocks(
         response.text
@@ -442,10 +456,7 @@ def generate_problems(
 반드시 {missing_count}개의 문제를 생성한다.
 """
 
-        retry_response = client.models.generate_content(
-            model="gemini-3.6-flash",
-            contents=retry_prompt
-        )
+        retry_response = generate_with_retry(retry_prompt)
 
         retry_blocks = extract_problem_blocks(
             retry_response.text
@@ -552,10 +563,7 @@ def generate_cbt_problems(count):
 - 정답 번호가 특정 위치에 과도하게 반복되지 않도록 한다.
 """
 
-    response = client.models.generate_content(
-        model="gemini-3.6-flash",
-        contents=prompt
-    )
+    response = generate_with_retry(prompt)
 
     problem_blocks = extract_problem_blocks(response.text)
 
