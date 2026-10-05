@@ -201,7 +201,8 @@ if not st.session_state.exam_started:
 
     count = st.session_state.cbt_count
 
-    st.caption(f"선택된 문제 수: {count}문제 · 60문제 CBT는 현재 준비 중입니다.")
+    st.caption(f"선택된 문제 수: {count}문제")
+    st.caption("🔒 60문제 CBT는 현재 준비 중입니다.")
     if st.button("🚀 시험 시작", use_container_width=True):
 
         with st.spinner("AI가 CBT 문제를 생성하는 중입니다..."):
