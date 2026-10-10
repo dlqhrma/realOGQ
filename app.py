@@ -70,10 +70,6 @@ stats = st.Page(
     title="통계"
 )
 
-test = st.Page(
-    "pages/test.py",
-    title="test"
-)
 
 if "user_id" in st.session_state:
 
@@ -87,7 +83,6 @@ if "user_id" in st.session_state:
             result,
             review,
             stats,
-            test,
         ],
         position="hidden"
     )
@@ -103,10 +98,6 @@ if "user_id" in st.session_state:
             st.page_link(
                 stats,
                 label="이용자 통계",
-                icon="📊")
-            st.page_link(
-                test,
-                label="test",
                 icon="📊")
                 
 else:
