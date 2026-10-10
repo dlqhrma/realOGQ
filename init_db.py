@@ -23,9 +23,6 @@ CREATE TABLE IF NOT EXISTS exams (
 )
 """)
 
-
-
-# 오답노트
 # 오답노트
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS wrong_answers (
