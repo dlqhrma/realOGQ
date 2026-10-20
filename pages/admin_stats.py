@@ -311,7 +311,7 @@ funnel_data = {
 
     "인원": [
         visit_count,
-         learning_total_count,
+        learning_total_count,
         cbt_total_count,
         revisit_count
     ],
@@ -336,8 +336,8 @@ st.dataframe(
 st.bar_chart(
     {
         "가입 계정": visit_count,
-        "학습 기능 이용": start_count,
-        "CBT 완료": complete_count,
+        "학습 기능 이용": learning_total_count,
+        "CBT 완료": cbt_total_count,
         "2일 이상 활동": revisit_count
     }
 )
