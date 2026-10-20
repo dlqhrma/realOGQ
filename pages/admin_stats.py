@@ -512,7 +512,7 @@ st.divider()
 st.subheader("⑤ 북극성 지표 현황")
 
 st.markdown(
-    "**북극성 지표:** 이번 주 CBT를 1회 이상 완료한 고유 계정 수"
+    "**측정 지표:** 이번 주 CBT 완료 횟수"
 )
 
 NORTH_STAR_GOAL = 30
