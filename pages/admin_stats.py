@@ -76,6 +76,10 @@ cbt_users = set()
 problem_users = set()
 wrong_note_users = set()
 
+cbt_total_count = sum(
+    1 for log in logs
+    if log["activity_type"] == "CBT"
+)
 
 for log in logs:
 
@@ -109,9 +113,13 @@ with col1:
 with col2:
     st.metric(
         "CBT 이용자",
-        len(cbt_users)
+        cbt_total_count
     )
-
+ #with col2:
+ #   st.metric(
+ #       "CBT 이용자",
+ #       len(cbt_users)
+ #   )
 
 with col3:
     st.metric(
