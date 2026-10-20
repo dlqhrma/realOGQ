@@ -140,7 +140,7 @@ from collections import defaultdict
 from datetime import timedelta
 
 st.divider()
-st.header("📊 이번 주 실측 대시보드")
+st.header("📊 활동 기록 대시보드")
 
 
 # =========================================================
@@ -213,8 +213,8 @@ revisit_users = {
 st.subheader("① 계측 이벤트")
 
 st.caption(
-    "방문 → 학습 시작 → 학습 완료 → 재방문 흐름을 "
-    "서비스 이용 기록을 기준으로 집계합니다."
+    "가입 계정 수와 활동 로그 기반 고유 계정 수를 표시합니다. "
+    "방문 및 실제 세션 시작 이벤트는 별도로 수집하지 않습니다."
 )
 
 event_col1, event_col2, event_col3, event_col4 = st.columns(4)
@@ -227,18 +227,18 @@ revisit_count = len(revisit_users)
 
 with event_col1:
     st.metric(
-        "👤 방문",
+        "👤 가입 계정",
         visit_count
     )
-    st.caption("가입된 전체 이용자")
+    st.caption("가입된 전체 계정 수 (사람 수와 다를 수 있음)")
 
 
 with event_col2:
     st.metric(
-        "🚀 시작",
+        "🚀 학습 기능 이용",
         start_count
     )
-    st.caption("CBT 또는 AI 문제 생성 이용")
+    st.caption("CBT 완료 또는 AI 문제 생성 로그가 있는 계정")
 
 
 with event_col3:
@@ -251,10 +251,10 @@ with event_col3:
 
 with event_col4:
     st.metric(
-        "🔁 재방문",
+        "🔁 2일 이상 활동",
         revisit_count
     )
-    st.caption("서로 다른 날짜에 2일 이상 활동")
+    st.caption("서로 다른 날짜에 2일 이상 활동한 계정")
 
 
 # =========================================================
@@ -262,7 +262,7 @@ with event_col4:
 # =========================================================
 
 st.divider()
-st.subheader("② 학습 퍼널")
+st.subheader("② 활동 계정 현황")
 
 
 def drop_rate(previous, current):
@@ -294,10 +294,10 @@ revisit_drop = drop_rate(
 
 funnel_data = {
     "단계": [
-        "방문",
-        "시작",
-        "완료",
-        "재방문"
+        "가입 계정",
+        "학습 기능 이용",
+        "CBT 완료",
+        "2일 이상 활동"
     ],
 
     "인원": [
@@ -307,11 +307,11 @@ funnel_data = {
         revisit_count
     ],
 
-    "이탈률": [
-        "-",
-        f"{start_drop:.1f}%",
-        f"{complete_drop:.1f}%",
-        f"{revisit_drop:.1f}%"
+    "비고": [
+        "가입된 계정",
+        "CBT 또는 문제 생성 로그",
+        "CBT 완료 로그",
+        "서로 다른 2일 이상 활동 로그"
     ]
 }
 
@@ -326,10 +326,10 @@ st.dataframe(
 # 간단한 퍼널 그래프
 st.bar_chart(
     {
-        "방문": visit_count,
-        "시작": start_count,
-        "완료": complete_count,
-        "재방문": revisit_count
+        "가입 계정": visit_count,
+        "학습 기능 이용": start_count,
+        "CBT 완료": complete_count,
+        "2일 이상 활동": revisit_count
     }
 )
 
@@ -339,7 +339,7 @@ st.bar_chart(
 # =========================================================
 
 st.divider()
-st.subheader("③ 리텐션")
+st.subheader("③ 주간 활동 계정 리텐션")
 
 now_kst = datetime.now(
     ZoneInfo("Asia/Seoul")
@@ -388,7 +388,7 @@ for log in logs:
         week1_users.add(user_id)
 
     # 이번 주
-    elif activity_date >= this_week_start:
+    elif this_week_start <= activity_date <= today:
         week2_users.add(user_id)
 
 
@@ -415,21 +415,21 @@ ret_col1, ret_col2, ret_col3, ret_col4 = st.columns(4)
 with ret_col1:
     st.metric(
         "1주차 이용자",
-        len(week1_users)+18
+        len(week1_users)
     )
 
 
 with ret_col2:
     st.metric(
         "2주차 이용자",
-        len(week2_users)+39
+        len(week2_users)
     )
 
 
 with ret_col3:
     st.metric(
         "재방문 이용자",
-        len(retained_users)+8
+        len(retained_users)
     )
 
 
@@ -453,7 +453,7 @@ st.progress(
 # =========================================================
 
 st.divider()
-st.subheader("④ 서비스 개선 1건")
+st.subheader("④ 서비스 개선 내용")
 
 st.markdown("""
 #### AI 문제 생성 안정성 개선
@@ -475,9 +475,8 @@ st.markdown("""
 """)
 
 
-# 실제 측정 후 아래 숫자만 변경
-before_success_rate = 60
-after_success_rate = 89
+# 시도/성공 이벤트 및 개선 전후 기간별 측정 데이터가 없어 산출하지 않음.
+# 임의의 성공률을 표시하지 않습니다.
 
 improve_col1, improve_col2 = st.columns(2)
 
@@ -485,14 +484,14 @@ improve_col1, improve_col2 = st.columns(2)
 with improve_col1:
     st.metric(
         "개선 전 CBT 시작 성공률",
-        f"{before_success_rate}%"
+        "측정 데이터 없음"
     )
 
 
 with improve_col2:
     st.metric(
         "개선 후 CBT 시작 성공률",
-        f"{after_success_rate}%"
+        "측정 데이터 없음"
     )
 
 
@@ -504,13 +503,13 @@ st.divider()
 st.subheader("⑤ 북극성 지표 현황")
 
 st.markdown(
-    "**북극성 지표:** 주 1회 이상 학습을 완료한 학생 수"
+    "**북극성 지표:** 이번 주 CBT를 1회 이상 완료한 고유 계정 수"
 )
 
 NORTH_STAR_GOAL = 30
 
 
-# 이번 주 CBT 또는 문제 생성을 이용한 고유 사용자
+# 이번 주 CBT 완료 로그가 있는 고유 계정 (문제 생성만 한 계정 제외)
 weekly_learning_users = set()
 
 
@@ -520,10 +519,7 @@ for log in logs:
         "activity_type"
     )
 
-    if activity_type not in [
-        "CBT",
-        "PROBLEM_GENERATION"
-    ]:
+    if activity_type != "CBT":
         continue
 
     dt = parse_log_datetime(
@@ -533,7 +529,7 @@ for log in logs:
     if dt is None:
         continue
 
-    if dt.date() >= this_week_start:
+    if this_week_start <= dt.date() <= today:
 
         weekly_learning_users.add(
             log.get("user_id")
@@ -543,7 +539,6 @@ for log in logs:
 north_star_current = len(
     weekly_learning_users
 )
-north_star_current+=19
 
 north_star_rate = min(
     (
@@ -584,7 +579,7 @@ st.progress(
 )
 
 st.caption(
-    f"이번 주 학습 이용자 "
+    f"이번 주 CBT 완료 계정 "
     f"{north_star_current}명 / "
     f"목표 {NORTH_STAR_GOAL}명"
 )
