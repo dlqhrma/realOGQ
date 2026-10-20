@@ -70,7 +70,7 @@ except Exception as e:
 # =========================================================
 
 # 전체 이용자 = users 테이블 기준
-total_users = len(users)+32
+total_users = len(users)
 
 cbt_users = set()
 problem_users = set()
@@ -109,21 +109,21 @@ with col1:
 with col2:
     st.metric(
         "CBT 이용자",
-        len(cbt_users)+13
+        len(cbt_users)
     )
 
 
 with col3:
     st.metric(
         "문제 생성 이용자",
-        len(problem_users)+10
+        len(problem_users)
     )
 
 
 with col4:
     st.metric(
         "오답노트 이용자",
-        len(wrong_note_users)+7
+        len(wrong_note_users)
     )
 
 
@@ -220,9 +220,9 @@ st.caption(
 event_col1, event_col2, event_col3, event_col4 = st.columns(4)
 
 visit_count = total_users
-start_count = len(started_users)+27
-complete_count = len(completed_users)+25
-revisit_count = len(revisit_users)+6
+start_count = len(started_users)
+complete_count = len(completed_users)
+revisit_count = len(revisit_users)
 
 
 with event_col1:
