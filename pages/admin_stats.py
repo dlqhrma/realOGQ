@@ -76,10 +76,18 @@ cbt_users = set()
 problem_users = set()
 wrong_note_users = set()
 
+# 중복 포함 실제 활동 횟수
 cbt_total_count = sum(
     1 for log in logs
     if log["activity_type"] == "CBT"
 )
+
+problem_total_count = sum(
+    1 for log in logs
+    if log["activity_type"] == "PROBLEM_GENERATION"
+)
+
+learning_total_count = cbt_total_count + problem_total_count
 
 for log in logs:
 
@@ -244,7 +252,7 @@ with event_col1:
 with event_col2:
     st.metric(
         "🚀 학습 기능 이용",
-        start_count
+        learning_total_count
     )
     st.caption("CBT 완료 또는 AI 문제 생성 로그가 있는 계정")
 
@@ -252,7 +260,7 @@ with event_col2:
 with event_col3:
     st.metric(
         "✅ 완료",
-        complete_count
+        cbt_total_count
     )
     st.caption("CBT 1회 이상 완료")
 
