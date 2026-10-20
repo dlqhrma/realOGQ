@@ -87,7 +87,7 @@ problem_total_count = sum(
     if log["activity_type"] == "PROBLEM_GENERATION"
 )
 
-learning_total_count = cbt_total_count + problem_users
+learning_total_count = cbt_total_count + len(problem_users)
 
 for log in logs:
 
