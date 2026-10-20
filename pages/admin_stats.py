@@ -76,18 +76,10 @@ cbt_users = set()
 problem_users = set()
 wrong_note_users = set()
 
-# 중복 포함 실제 활동 횟수
 cbt_total_count = sum(
     1 for log in logs
     if log["activity_type"] == "CBT"
 )
-
-problem_total_count = sum(
-    1 for log in logs
-    if log["activity_type"] == "PROBLEM_GENERATION"
-)
-
-
 
 for log in logs:
 
@@ -319,8 +311,8 @@ funnel_data = {
 
     "인원": [
         visit_count,
-        start_count,
-        complete_count,
+         learning_total_count,
+        cbt_total_count,
         revisit_count
     ],
 
