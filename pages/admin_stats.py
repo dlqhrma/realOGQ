@@ -87,7 +87,7 @@ problem_total_count = sum(
     if log["activity_type"] == "PROBLEM_GENERATION"
 )
 
-learning_total_count = cbt_total_count + len(problem_users)
+
 
 for log in logs:
 
@@ -102,7 +102,8 @@ for log in logs:
 
     elif activity_type == "WRONG_NOTE":
         wrong_note_users.add(user_id)
-
+# CBT 완료 횟수 + 문제 생성 고유 계정 수
+learning_total_count = cbt_total_count + len(problem_users)
 
 # =========================================================
 # 이용자 수 표시
